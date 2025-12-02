@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <menuitem name="Task" id="task_menu_root"/>
+        <menuitem name="Tareas" id="task_menu" parent="task_menu_root" action="task_action"/>
+        <menuitem name="Contactos" id="task_contacts_menu" parent="task_menu_root" action="task_contacts_action"/>
+    </data>
+</odoo>
+

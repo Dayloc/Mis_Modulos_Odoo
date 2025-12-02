@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="task_report_template" t-name="task.task_report_template">
+        <t t-call="web.external_layout">
+            <main class="o_report_layout">
+                <div class="page">
+                    <h2>Reporte de Tareas</h2>
+
+                    <t t-foreach="docs" t-as="doc">
+                        <div style="margin-bottom: 20px;" >
+                            <p class="text-primary "><strong>ID:</strong> <t t-esc="doc.id"/></p>
+                            <p><strong>Nombre:</strong> <t t-esc="doc.name"/></p>
+                            <p><strong>Descripción:</strong> <t t-esc="doc.description"/></p>
+                            <p><strong>Fecha:</strong> <t t-esc="doc.date"/></p>
+                            <p><strong>Estado:</strong> <t t-esc="doc.state"/></p>
+                            <p class="text-danger "><strong>Responsable:</strong>
+                                <t t-esc="doc.partner_id.name or 'Sin asignar'"/>
+                            </p>
+                        </div>
+                        <hr/>
+                    </t>
+
+                </div>
+            </main>
+        </t>
+    </template>
+</odoo>

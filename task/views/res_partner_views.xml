@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_partner_form_inherit_task" model="ir.ui.view">
+            <field name="name">res.partner.form.inherit.task</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet/group[1]" position="inside">
+                    <group>
+                        <field name="is_coach"/>
+                        <field name="is_athlete"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+        <record id="task_partner_tree_view" model="ir.ui.view">
+            <field name="name">task.partner.list</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <list string="Contactos (Task)">
+                    <field name="name"/>
+                    <field name="phone"/>
+                    <field name="email"/>
+                    <field name="is_coach"/>
+                    <field name="is_athlete"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

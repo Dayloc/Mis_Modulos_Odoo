@@ -1,0 +1,17 @@
+<odoo>
+    <record id="res_partner_form_licencia_vip" model="ir.ui.view">
+        <field name="name">res.partner.form.licencia.vip</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="tiene_licencia"/>
+                <field name="es_vip" readonly="1"/>
+            </xpath>
+            <xpath expr="//field[@name='image_1920']" position="after">
+                <field name="vip_badge_html" nolabel="1"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

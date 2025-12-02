@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="action_report_task" model="ir.actions.report">
+            <field name="name">Task Report</field>
+            <field name="model">task</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">task.task_report_template</field>
+            <field name="report_file">task.task_report_template</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,9 @@
+<odoo>
+    <template id="partner_vip_badge">
+        <t t-if="record.es_vip">
+            <img src="/activia_products/static/src/img/vip.png"
+                 style="width:48px; margin-left:10px;"
+                 alt="VIP"/>
+        </t>
+    </template>
+</odoo>

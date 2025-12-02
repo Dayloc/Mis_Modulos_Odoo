@@ -1,0 +1,1 @@
+from  . import product_template, rest_partner, sale_order

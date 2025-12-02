@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sample form view -->
+    <record id="task_view_form" model="ir.ui.view">
+        <field name="name">task.view.form</field>
+        <field name="model">task</field>
+        <field name="arch" type="xml">
+            <form string="Sample">
+                <header>
+                     <button name="print_task_report" string="Imprimir Reporte" type="object" class="btn-primary"/>
+                    <button name="button_action" string="Submit" type="object" class="btn-primary"/>
+                    <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h3 class="text-primary ">
+                            <field name="name" placeholder="Escriba una tarea"/>
+                        </h3>
+                    </div>
+                    <group>
+                        <field name="active" invisible="1"/>
+                        <field name="partner_id"/>
+
+                    </group>
+                    <notebook>
+                        <page string="Details">
+                            <group>
+                                <field name="description"/>
+                             <field name="date"/>
+                            </group>
+
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Sample list view -->
+    <record id="task_view_list" model="ir.ui.view">
+        <field name="name">task.view.list</field>
+        <field name="model">task</field>
+        <field name="arch" type="xml">
+            <list string="Tareas">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="description"/>
+                <field name="state"/>
+                <field name="date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="task_view_kanban" model="ir.ui.view">
+        <field name="name">task.view.kanban</field>
+        <field name="model">task</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <field name="name"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="task_view_search" model="ir.ui.view">
+        <field name="name">task.view.search</field>
+        <field name="model">task</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter string="Draft" name="filter_draft" domain="[('state','=','draft')]"/>
+                <filter string="Confirmed" name="filter_confirmed" domain="[('state','=','confirmed')]"/>
+                <filter string="Done" name="filter_done" domain="[('state','=','done')]"/>
+            </search>
+        </field>
+    </record>
+    <!-- Action -->
+
+
+
+</odoo>

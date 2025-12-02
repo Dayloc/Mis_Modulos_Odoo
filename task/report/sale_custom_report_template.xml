@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="sale_custom_report_template" t-name="task.sale_custom_report_template">
+        <t t-foreach="docs" t-as="doc">
+
+            <t t-call="web.external_layout">
+                <main class="o_report_layout">
+                    <div class="page" style="font-size:14px; padding:10px 20px;">
+
+                        <!-- CABECERA -->
+                        <!-- CABECERA PERSONALIZADA -->
+                        <table style="width:100%; border-collapse:collapse; border:none !important; margin-bottom:20px;">
+                            <tr style="border:none !important;">
+
+                                <!-- LOGO IZQUIERDA -->
+                                <td style="width:40%; border:none !important; padding:0;">
+                                    <img t-att-src="'/web/image/622'" style="max-width:200px;"/>
+
+                                </td>
+
+                                <!-- TEXTO DERECHA -->
+                                <td style="width:60%; text-align:right; font-size:14px; border:none !important; padding:0;">
+                                    <strong>ZIGGURAT LANGUAGE SERVICES, S.L.</strong>
+                                    <br/>
+                                    CIF: B63781926
+                                    <br/>
+                                    C/ Torrecilla, 3 - P.I. Río de Janeiro / 28110 BARCELONA
+                                </td>
+
+                            </tr>
+                        </table>
+
+
+                        <table style="width:100%; border-collapse:collapse; border:none !important; margin-top:10px;">
+                            <thead>
+                                <tr style="border:none !important;">
+                                    <th style="text-align:left; padding:6px; border:none !important;">Descripción</th>
+                                    <th style="text-align:center; padding:6px; border:none !important;">Cantidad</th>
+                                    <th style="text-align:right; padding:6px; border:none !important;">Precio</th>
+                                    <th style="text-align:right; padding:6px; border:none !important;">Subtotal</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <t t-foreach="doc.order_line" t-as="l">
+                                    <tr style="border:none !important;">
+                                        <td style="padding:6px; border:none !important;">
+                                            <t t-esc="l.name"/>
+                                        </td>
+                                        <td style="text-align:center; padding:6px; border:none !important;">
+                                            <t t-esc="l.product_uom_qty"/>
+                                        </td>
+                                        <td style="text-align:right; padding:6px; border:none !important;">
+                                            <t t-esc="l.price_unit"/>
+                                        </td>
+                                        <td style="text-align:right; padding:6px; border:none !important;">
+                                            <t t-esc="l.price_subtotal"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+
+                        <hr class="text-danger" style="margin:15px 0; "/>
+
+                        <!-- TABLA DE PRODUCTOS -->
+                        <h3 style="margin-top:10px; margin-bottom:10px;">Detalle</h3>
+
+                        <table style="width:100%; border-collapse:collapse; border:none; margin-top:10px;">
+                            <thead>
+                                <tr style="border:none">
+                                    <th style="text-align:left; padding:6px;">Descripción</th>
+                                    <th style="text-align:center; padding:6px;">Cantidad</th>
+                                    <th style="text-align:right; padding:6px;">Precio</th>
+                                    <th style="text-align:right; padding:6px;">Subtotal</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <t t-foreach="doc.order_line" t-as="l">
+                                    <tr>
+                                        <td style="padding:6px; border:none">
+                                            <t t-esc="l.name"/>
+                                        </td>
+                                        <td style="text-align:center; padding:6px; border:none">
+                                            <t t-esc="l.product_uom_qty"/>
+                                        </td>
+                                        <td style="text-align:right; padding:6px; border:none">
+                                            <t t-esc="l.price_unit"/>
+                                        </td>
+                                        <td style="text-align:right; padding:6px; border:none">
+                                            <t t-esc="l.price_subtotal"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- TOTALES -->
+                        <table style="width:40%; margin-top:25px; float:right; font-size:14px; border-collapse:collapse; border:none;">
+                            <tr>
+                                <td style="padding:4px 0;">
+                                    <strong>Base imponible:</strong>
+                                </td>
+                                <td style="text-align:right; padding:4px 0;">
+                                    <t t-esc="doc.amount_untaxed"/>
+                                    €
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:4px 0;">
+                                    <strong>IVA:</strong>
+                                </td>
+                                <td style="text-align:right; padding:4px 0;">
+                                    <t t-esc="doc.amount_tax"/>
+                                    €
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:4px 0;">
+                                    <strong>Total:</strong>
+                                </td>
+                                <td style="text-align:right; padding:4px 0; font-weight:bold;">
+                                    <t t-esc="doc.amount_total"/>
+                                    €
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div style="clear:both;"></div>
+
+                        <!-- FOOTER -->
+                        <div style="text-align:end; margin-top:60px; font-size:12px; color:#555;">
+                            <t t-esc="doc.company_id.name"/>
+                            <br/>
+                            CIF:
+                            <t t-esc="doc.company_id.vat or ''"/>
+                            <br/>
+                            <t t-esc="doc.company_id.street"/>
+                            ,
+                            <t t-esc="doc.company_id.city"/>
+                            -
+                            <t t-esc="doc.company_id.zip"/>
+                            <br/>
+                            <t t-esc="doc.company_id.email or ''"/>
+                            |
+                            <t t-esc="doc.company_id.website or ''"/>
+                        </div>
+
+                    </div>
+                </main>
+            </t>
+
+        </t>
+    </template>
+
+</odoo>

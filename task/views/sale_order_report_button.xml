@@ -1,0 +1,17 @@
+<odoo>
+    <record id="sale_order_form_inherit_task" model="ir.ui.view">
+        <field name="name">sale.order.form.task.report</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//header" position="inside">
+                <button name="%(task.action_report_sale_custom)d"
+                        type="action"
+                        class="btn-primary"
+                        string="Imprimir Presupuesto Personalizado"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
