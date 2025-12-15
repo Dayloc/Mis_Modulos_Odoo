@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_partner_form_linea" model="ir.ui.view">
+        <field name="name">res.partner.form.linea</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='category_id']" position="replace">
+                <field name="description_ids" widget="many2many_tags" placeholder="Añadir etiquetas..."/>
+            </xpath>
+            <xpath expr="//field[@name='phone']" position="after">
+                <group>
+                    <field class="text-danger" name="linea_id" options="{'no_create': True, 'no_open': True}"/>
+                </group>
+
+
+            </xpath>
+
+
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_wizard_import_contact,wizard.import.contact,model_wizard_import_contact,,1,1,1,1
+access_contact_linea,contact.linea,model_contact_linea,,1,1,1,1
+access_contact_tag,contact.tag,model_contact_tag,,1,1,1,1
