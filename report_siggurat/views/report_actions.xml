@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+<!--        <record id="action_report_saleorder_puentia" model="ir.actions.report">-->
+<!--            <field name="name">Presupuesto (Formato Puentia)</field>-->
+<!--            <field name="model">sale.order</field>-->
+<!--            <field name="report_type">qweb-pdf</field>-->
+
+<!--            <field name="report_name">report_puentia.report_copy_saleorder_standalone</field>-->
+
+<!--            <field name="report_file">report_puentia.report_copy_saleorder_standalone</field>-->
+
+<!--            <field name="binding_model_id" ref="sale.model_sale_order"/>-->
+<!--            <field name="binding_type">report</field>-->
+<!--        </record>-->
+
+        <record id="action_report_account_move_siggurat" model="ir.actions.report">
+            <field name="name">Factura Ziggurat</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+
+            <field name="report_name">report_siggurat.report_invoice_standalone</field>
+            <field name="report_file">report_siggurat.report_invoice_standalone</field>
+
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+        </record>
+
+    </data>
+</odoo>
