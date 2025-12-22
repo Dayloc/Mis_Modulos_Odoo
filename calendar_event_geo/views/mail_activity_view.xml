@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="mail_activity_form_geo" model="ir.ui.view">
+        <field name="name">mail.activity.form.geo</field>
+        <field name="model">mail.activity</field>
+        <field name="inherit_id" ref="mail.mail_activity_view_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Insertamos el botón al inicio del sheet -->
+            <xpath expr="//sheet" position="inside">
+                <div class="oe_button_box" name="button_box">
+                    <button
+                        name="action_get_user_geo"
+                        type="object"
+                        string="Obtener mi ubicación"
+                        class="oe_highlight"/>
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="action_calendar_user_geo" model="ir.actions.client">
+        <field name="name">Obtener mi ubicación</field>
+        <field name="tag">calendar_user_geo</field>
+    </record>
+
+</odoo>
