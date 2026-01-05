@@ -12,11 +12,11 @@ import { rpc } from "@web/core/network/rpc";
 registry.category("actions").add(
     "calendar_event_geo",
     async (env, action) => {
-        console.log("🚀 calendar_event_geo ejecutado");
+        console.log(" calendar_event_geo ejecutado");
 
         // Obtener ID del evento (forma correcta en Odoo 18)
         const eventId = action?.context?.active_id;
-        console.log("🆔 Event ID:", eventId);
+        console.log(" Event ID:", eventId);
 
         if (!eventId) {
             alert("Guarda la reunión primero");
@@ -24,7 +24,7 @@ registry.category("actions").add(
         }
 
         try {
-            //  Llamar al backend (sin CORS)
+            //  Llamar al backend
             const result = await rpc("/web/dataset/call_kw", {
                 model: "calendar.event",
                 method: "action_geocode_address",
@@ -45,7 +45,7 @@ registry.category("actions").add(
 
             alert("Coordenadas guardadas correctamente");
         } catch (error) {
-            console.error("❌ Error RPC:", error);
+            console.error("Error RPC:", error);
             alert("Error al obtener coordenadas");
         }
     }
