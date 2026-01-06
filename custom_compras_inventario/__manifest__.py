@@ -15,6 +15,11 @@ Este módulo permite personalizar el comportamiento de:
         "project",
         "account"
     ],
+'assets': {
+    'web.assets_backend': [
+        'custom_compras_inventario/static/src/css/center_project_column.css',
+    ],
+},
     "data": [
         "views/orden_compra_view.xml",
         "views/inventario_view.xml"
