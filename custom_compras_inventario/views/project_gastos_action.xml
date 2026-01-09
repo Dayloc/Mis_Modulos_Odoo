@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_project_gastos_compras" model="ir.actions.act_window">
+        <field name="name">Gastos de compras</field>
+        <field name="res_model">stock.move</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_stock_move_gastos_list"/>
+        <field name="domain">
+            [('proyecto_id', '=', active_id), ('state', '=', 'done')]
+        </field>
+        <field name="context">
+            {'default_proyecto_id': active_id}
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,24 @@
+<odoo>
+    <record id="project_form_gastos_button" model="ir.ui.view">
+        <field name="name">project.form.gastos.button</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+
+                <button
+                    name="%(action_project_gastos_compras)d"
+                    type="action"
+                    class="oe_stat_button"
+                    icon="fa-shopping-cart"
+                >
+                    <field name="total_gastado" widget="monetary"/>
+                    <span class="o_stat_text">Gastos compras</span>
+                </button>
+
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
