@@ -1,9 +1,11 @@
 from odoo import models, fields
 from odoo.exceptions import UserError
+from .saes_sqlserver import SaesSQLServerMixin
+
 import psycopg2
 
 
-class SaesImportConfig(models.Model):
+class SaesImportConfig(models.Model,SaesSQLServerMixin):
     _name = "saes.import.config"
     _description = "Configuración Importador SAE"
 
@@ -19,6 +21,16 @@ class SaesImportConfig(models.Model):
     import_direcciones = fields.Boolean(string="Importar direcciones")
     import_proveedores = fields.Boolean(string="Importar proveedores")
 
+    #Campo para tipo de db
+    db_type = fields.Selection(
+        [
+            ("postgres", "PostgreSQL"),
+            ("sqlserver", "SQL Server"),
+        ],
+        string="Tipo de base de datos",
+        required=True,
+        default="postgres",
+    )
 
     def _get_saes_connection(self):
         try:
@@ -246,5 +258,21 @@ class SaesImportConfig(models.Model):
                 ),
                 "type": "success",
                 "sticky": True,
+            },
+        }
+
+    def action_test_sqlserver_connection(self):
+        self.ensure_one()
+
+        conn = self._get_sqlserver_connection()
+        conn.close()
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": "Conexión SQL Server",
+                "message": "Conexión con SAE (SQL Server) realizada correctamente.",
+                "type": "success",
             },
         }

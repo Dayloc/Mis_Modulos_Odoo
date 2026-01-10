@@ -8,9 +8,11 @@
 
                     <button name="action_test_connection"
                             icon="fa-plug"
-                            string="Probar conexión"
+                            string="Probar conexión PostgreSQL"
                             type="object"
-                            class="btn-primary btn-sm"/>
+                            class="btn-primary btn-sm"
+                            invisible="db_type != 'postgres'"/>
+
                     <button name="action_check_clients"
                             icon="fa-list"
                             string="Contar clientes"
@@ -36,16 +38,37 @@
                             type="object"
                             class="btn-warning btn-sm"
                             invisible="not import_direcciones"/>
+                    <button name="action_test_sqlserver_connection"
+                            icon="fa-database"
+                            string="Probar conexión SQL Server"
+                            type="object"
+                            class="btn-primary btn-sm"
+                            invisible="db_type != 'sqlserver'"/>
+
                 </header>
                 <sheet>
+                    <group string="Origen de datos">
+                        <field name="db_type" widget="radio"/>
+                    </group>
 
-                    <group string="Conexión a SAE">
+
+                    <group string="Conexión PostgreSQL"
+                           invisible="db_type != 'postgres'">
                         <field name="host"/>
                         <field name="port"/>
                         <field name="database"/>
                         <field name="user"/>
                         <field name="password" password="True"/>
                     </group>
+                    <group string="Conexión SQL Server"
+                           invisible="db_type != 'sqlserver'">
+                        <field name="host"/>
+                        <field name="database"/>
+                        <field name="user"/>
+                        <field name="password" password="True"/>
+                    </group>
+
+
                     <group string="¿Qué deseas importar?">
                         <field name="import_clientes"/>
                         <field name="import_direcciones"/>
@@ -64,6 +87,7 @@
         <field name="arch" type="xml">
             <list>
                 <field name="name"/>
+                <field name="db_type"/>
                 <field name="host"/>
                 <field name="database"/>
                 <field name="import_clientes"/>
