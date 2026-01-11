@@ -44,7 +44,7 @@ class SaleOrderTableSelector(models.TransientModel):
 
         table = self.table_id.name
 
-        # 🔑 DIFERENCIAMOS SEGÚN DB
+        #  DIFERENCIAMOS SEGÚN DB
         if config.db_type == "postgres":
             query = f"""
                 SELECT *

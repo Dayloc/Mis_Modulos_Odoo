@@ -12,13 +12,7 @@
                     <button string="Cerrar"
                             class="btn-secondary"
                             special="cancel"/>
-                    <button
-                            name="action_preview_raw"
-                            type="object"
-                            string="Preview RAW (estructura real)"
-                            icon="fa-database"
-                            class="btn-secondary"
-                    />
+
                 </footer>
             </form>
         </field>

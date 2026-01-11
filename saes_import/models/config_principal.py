@@ -1,9 +1,9 @@
 from odoo import models, fields
 from odoo.exceptions import UserError
 from .sqlserver_configuration import SaesSQLServerMixin
-
-
 import psycopg2
+import pandas as pd
+
 
 
 class SaesImportConfig(models.Model, SaesSQLServerMixin):
@@ -51,12 +51,17 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         conn = self._get_connection()
         try:
             cur = conn.cursor()
-            cur.execute(query)
+            cur.execute(str(query))
+
             cols = [c[0] for c in cur.description]
-            return [dict(zip(cols, r)) for r in cur.fetchall()]
+
+            rows = []
+            for r in cur:  # 👈 clave
+                rows.append(dict(zip(cols, r)))
+
+            return rows
         finally:
             conn.close()
-
 
     # detectar tablas
 
@@ -147,6 +152,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         sql_cols = []
         for key, col in columns.items():
             if col:
+                col = str(col)
                 sql_cols.append(f"{col} AS {key}")
 
         if not sql_cols:
@@ -194,11 +200,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
                 "default_preview_text": "\n-----------------\n".join(text)
             },
         }
-
-
     # notificaciones
-
-
     def _notify(self, title, message):
         return {
             "type": "ir.actions.client",
