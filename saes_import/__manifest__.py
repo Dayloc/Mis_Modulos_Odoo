@@ -21,6 +21,7 @@
         "views/detected_all_tables_wizard.xml",
         "views/provider_table_selector.xml",
         "views/product_table_selector_view.xml",
+        "views/sale_order_table_selector_view.xml"
     ],
     "installable": True,
     "application": False,

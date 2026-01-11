@@ -1,7 +1,7 @@
 from odoo import models, fields
 from odoo.exceptions import UserError
 from .sqlserver_configuration import SaesSQLServerMixin
-from . import detector_all_methods
+
 
 import psycopg2
 
@@ -31,6 +31,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
     client_table = fields.Char(readonly=True)
     provider_table = fields.Char(readonly=True)
     product_table = fields.Char(readonly=True)
+    sale_order_table = fields.Char(readonly=True)
 
     # conexión para ambos sql sever/ posgres
 
@@ -335,7 +336,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             },
         }
 
-    def detect_provider_columns(self, config, table):
+    """def detect_provider_columns(self, config, table):
         columns = self.detect_columns(config, table)
 
         mapping = {
@@ -371,7 +372,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
                 if mapping[field] is None and any(k in c for k in keys):
                     mapping[field] = col
 
-        return mapping
+        return mapping"""
     # acción para abrir selector de productos
     def action_choose_product_table(self):
         self.ensure_one()
@@ -403,7 +404,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
                 "active_id": self.id,
             },
         }
-    #accion para el método
+    # acción para el método previo de producto
     def _preview_products(self, limit=5):
         self.ensure_one()
 
@@ -438,7 +439,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
 
         return self._execute_sql(query)
 
-    # acción para el preview
+    # acción para el preview de productos
     def action_preview_products(self):
         self.ensure_one()
 
@@ -491,3 +492,156 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             "target": "new",
             "res_id": wizard.id,
         }
+    #acción detectar tablas pedidos
+    def action_detect_sale_order_tables(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_sale_order_tables(self)
+
+        if not tables:
+            raise UserError("No se detectaron tablas candidatas a pedidos.")
+
+        wizard = self.env["saes.detected.tables.wizard"].create({})
+
+        for t in tables:
+            self.env["saes.detected.table"].create({
+                "name": t,
+                "wizard_id": wizard.id,
+            })
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Tablas candidatas a pedidos",
+            "res_model": "saes.detected.tables.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "res_id": wizard.id,
+        }
+
+    def action_choose_sale_order_table(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_sale_order_tables(self)
+        if not tables:
+            raise UserError("No se detectaron tablas de pedidos.")
+
+        Option = self.env["sale.order.table.option"]
+        Option.search([
+            ("config_id", "=", self.id)
+        ]).unlink()
+
+        for t in tables:
+            Option.create({
+                "name": t,
+                "config_id": self.id,
+            })
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Elegir tabla de pedidos",
+            "res_model": "sale.order.table.selector",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "active_id": self.id,
+            },
+        }
+
+    def _preview_sale_orders(self, limit=5):
+        self.ensure_one()
+
+        if not self.sale_order_table:
+            raise UserError("No hay tabla de pedidos seleccionada.")
+
+        detector = self.env["saes.detector"]
+        columns = detector.detect_sale_order_columns(self, self.sale_order_table)
+
+        sql_cols = []
+        for key, col in columns.items():
+            if col:
+                col= str(col)
+                sql_cols.append(f"{col} AS {key}")
+
+        if not sql_cols:
+            raise UserError("No se detectaron columnas válidas para preview.")
+
+        if self.db_type == "postgres":
+            query = f"""
+                SELECT {', '.join(sql_cols)}
+                FROM {self.sale_order_table}
+                LIMIT {limit}
+            """
+        else:
+            query = f"""
+                SELECT TOP {limit} {', '.join(sql_cols)}
+                FROM {self.sale_order_table}
+            """
+
+        return self._execute_sql(query)
+
+    def action_preview_sale_orders(self):
+        self.ensure_one()
+
+        rows = self._preview_sale_orders(limit=5)
+        if not rows:
+            raise UserError("No hay datos para mostrar.")
+
+        text = []
+        for r in rows:
+            text.append(
+                f"""Pedido: {r.get('number', '—')}
+    Fecha: {r.get('date', '—')}
+    Cliente: {r.get('customer', '—')}
+    Total: {r.get('total', '—')}
+    Estado: {r.get('state', '—')}
+    """
+            )
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Preview pedidos",
+            "res_model": "saes.client.preview.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_preview_text": "\n-----------------\n".join(text)
+            },
+        }
+
+    def _preview_sale_orders_raw(self, limit=5):
+        self.ensure_one()
+
+        if not self.sale_order_table:
+            raise UserError("No hay tabla de pedidos seleccionada.")
+
+        if self.db_type == "postgres":
+            query = f"""
+                SELECT *
+                FROM {self.sale_order_table}
+                LIMIT {limit}
+            """
+        else:
+            query = f"""
+                SELECT TOP {limit} *
+                FROM {self.sale_order_table}
+            """
+
+        return self._execute_sql(query)
+
+    def preview_raw_table(self, table, limit=5):
+        self.ensure_one()
+
+        if self.db_type == "postgres":
+            query = f"""
+                SELECT *
+                FROM {table}
+                LIMIT {limit}
+            """
+        else:
+            query = f"""
+                SELECT TOP {limit} *
+                FROM {table}
+            """
+
+        return self._execute_sql(query)
+
