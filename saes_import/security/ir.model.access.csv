@@ -1,2 +1,14 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_saes_import_config,saes.import.config,model_saes_import_config,,1,1,1,1
+access_saes_table_selector_user,access_saes_table_selector_user,model_saes_table_selector,base.group_user,1,0,1,0
+access_saes_client_preview_user,access_saes_client_preview_user,model_saes_client_preview_wizard,base.group_user,1,0,1,0
+access_saes_client_table_option,saes.client.table.option,model_saes_client_table_option,base.group_user,1,1,1,1
+access_saes_detected_tables_wizard,saes.detected.tables.wizard,model_saes_detected_tables_wizard,base.group_user,1,1,1,1
+access_saes_client_table_option,saes.client.table.option,model_saes_client_table_option,base.group_user,1,1,1,1
+access_saes_detected_table,saes.detected.table,model_saes_detected_table,base.group_user,1,1,1,1
+access_saes_import_config,saes.import.config,model_saes_import_config,base.group_system,1,1,1,1
+access_saes_provider_table_option,saes.provider.table.option,model_saes_provider_table_option,base.group_user,1,1,1,1
+access_saes_provider_table_selector,saes.provider.table.selector,model_saes_provider_table_selector,base.group_user,1,1,1,1
+
+
+

@@ -1,0 +1,22 @@
+<record id="view_provider_table_selector" model="ir.ui.view">
+    <field name="name">saes.provider.table.selector.form</field>
+    <field name="model">saes.provider.table.selector</field>
+    <field name="arch" type="xml">
+        <form string="Elegir tabla de proveedores">
+            <group string="Tabla de proveedores">
+                <field name="provider_table"
+                       widget="radio"
+                       domain="[('config_id','=',id)]"/>
+            </group>
+
+            <footer>
+                <button string="Confirmar"
+                        type="object"
+                        name="action_confirm"
+                        class="btn-primary"/>
+                <button string="Cancelar"
+                        special="cancel"/>
+            </footer>
+        </form>
+    </field>
+</record>
