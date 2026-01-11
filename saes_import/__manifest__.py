@@ -19,7 +19,8 @@
         "views/table_clients_selector_views.xml",
         "views/clients_table_preview_wizard.xml",
         "views/detected_all_tables_wizard.xml",
-        "views/provider_table_selector.xml"
+        "views/provider_table_selector.xml",
+        "views/product_table_selector_view.xml",
     ],
     "installable": True,
     "application": False,

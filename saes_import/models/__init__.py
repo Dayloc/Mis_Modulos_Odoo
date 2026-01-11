@@ -6,3 +6,4 @@ from .client import clients_import, client_preview_wizard, client_table_option, 
 from . import detected_all_table
 from . import detected_all_tables_wizard
 from .provider import provider_table_option, provider_table_selector
+from .products import product_table_option,product_table_selector

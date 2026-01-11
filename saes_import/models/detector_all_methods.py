@@ -197,3 +197,33 @@ class SaesDetector(models.AbstractModel):
             t for t in tables
             if any(k in t.lower() for k in keywords)
         ]
+    # detector de columnas de producto
+    def detect_product_columns(self, config, table):
+        columns = self.detect_columns(config, table)
+
+        mapping = {
+            "code": None,
+            "name": None,
+            "type": None,
+        }
+
+        keywords = {
+            "code": [
+                "codigo", "code", "cve",
+                "id_art", "articulo", "producto"
+            ],
+            "name": [
+                "nombre", "name", "descripcion", "desc"
+            ],
+            "type": [
+                "tipo", "type", "servicio", "producto"
+            ],
+        }
+
+        for col in columns:
+            c = col.lower()
+            for field, keys in keywords.items():
+                if mapping[field] is None and any(k in c for k in keys):
+                    mapping[field] = col
+
+        return mapping

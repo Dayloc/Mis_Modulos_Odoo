@@ -30,6 +30,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
 
     client_table = fields.Char(readonly=True)
     provider_table = fields.Char(readonly=True)
+    product_table = fields.Char(readonly=True)
 
     # conexión para ambos sql sever/ posgres
 
@@ -371,3 +372,122 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
                     mapping[field] = col
 
         return mapping
+    # acción para abrir selector de productos
+    def action_choose_product_table(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_product_tables(self)
+
+        if not tables:
+            raise UserError("No se detectaron tablas de productos.")
+
+        Option = self.env["product.table.option"]
+
+        for t in tables:
+            if not Option.search([
+                ("name", "=", t),
+                ("config_id", "=", self.id),
+            ], limit=1):
+                Option.create({
+                    "name": t,
+                    "config_id": self.id,
+                })
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Elegir tabla de productos",
+            "res_model": "product.table.selector",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "active_id": self.id,
+            },
+        }
+    #accion para el método
+    def _preview_products(self, limit=5):
+        self.ensure_one()
+
+        if not self.product_table:
+            raise UserError("No hay tabla de productos seleccionada.")
+
+        detector = self.env["saes.detector"]
+        columns = detector.detect_product_columns(self, self.product_table)
+
+        if not columns:
+            raise UserError("No se pudieron detectar columnas de productos.")
+
+        sql_cols = []
+        for key, col in columns.items():
+            if col:
+                sql_cols.append(f"{col} AS {key}")
+
+        if not sql_cols:
+            raise UserError("No hay columnas válidas para preview.")
+
+        if self.db_type == "postgres":
+            query = f"""
+                SELECT {', '.join(sql_cols)}
+                FROM {self.product_table}
+                LIMIT {limit}
+            """
+        else:
+            query = f"""
+                SELECT TOP {limit} {', '.join(sql_cols)}
+                FROM {self.product_table}
+            """
+
+        return self._execute_sql(query)
+
+    # acción para el preview
+    def action_preview_products(self):
+        self.ensure_one()
+
+        rows = self._preview_products(limit=5)
+
+        if not rows:
+            raise UserError("No hay datos para mostrar.")
+
+        text = []
+        for r in rows:
+            text.append(
+                f"""Producto: {r.get('name', '—')}
+    Código: {r.get('code', '—')}
+    Tipo: {r.get('type', '—')}
+    """
+            )
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Preview productos",
+            "res_model": "saes.client.preview.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_preview_text": "\n-----------------\n".join(text)
+            },
+        }
+    #tablas candidatas de productos
+    def action_detect_product_tables(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_product_tables(self)
+
+        if not tables:
+            raise UserError("No se detectaron tablas candidatas de productos.")
+
+        wizard = self.env["saes.detected.tables.wizard"].create({})
+
+        for t in tables:
+            self.env["saes.detected.table"].create({
+                "name": t,
+                "wizard_id": wizard.id,
+            })
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Tablas candidatas de productos",
+            "res_model": "saes.detected.tables.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "res_id": wizard.id,
+        }

@@ -5,15 +5,18 @@
         <field name="arch" type="xml">
             <form string="Configuración Importador SAE">
                 <header>
+
                     <button name="action_detect_tables"
                             string="Detectar tablas existentes"
                             type="object"
+                            icon="fa-database"
                             class="btn-primary"/>
 
                     <div class="o_dropdown">
-                        <a class="btn btn-secondary o_dropdown_toggle"
+                        <a class="btn btn-info o_dropdown_toggle"
                            data-bs-toggle="dropdown"
                            role="button">
+                            <i class="fa fa-users me-1"/>
                             Clientes
                         </a>
 
@@ -21,24 +24,28 @@
                             <button name="action_detect_client_tables"
                                     type="object"
                                     string="Detectar tablas candidatas"
+                                    icon="fa-search"
                                     class="dropdown-item"/>
 
                             <button name="action_choose_client_table"
                                     type="object"
                                     string="Elegir tabla clientes"
+                                    icon="fa-table"
                                     class="dropdown-item"/>
 
                             <button name="action_preview_clients"
                                     type="object"
                                     string="Preview clientes (lectura)"
+                                    icon="fa-eye"
                                     class="dropdown-item"/>
                         </div>
                     </div>
 
                     <div class="o_dropdown">
-                        <a class="btn btn-secondary o_dropdown_toggle"
+                        <a class="btn btn-warning o_dropdown_toggle"
                            data-bs-toggle="dropdown"
                            role="button">
+                            <i class="fa fa-truck me-1"/>
                             Proveedores
                         </a>
 
@@ -46,20 +53,51 @@
                             <button name="action_detect_provider_tables"
                                     type="object"
                                     string="Detectar tablas candidatas"
+                                    icon="fa-search"
                                     class="dropdown-item"/>
 
                             <button name="action_choose_provider_table"
                                     type="object"
                                     string="Elegir tabla proveedores"
+                                    icon="fa-table"
                                     class="dropdown-item"/>
 
                             <button name="action_preview_providers"
                                     type="object"
                                     string="Preview proveedores (lectura)"
+                                    icon="fa-eye"
                                     class="dropdown-item"/>
                         </div>
                     </div>
 
+                    <div class="o_dropdown">
+                        <a class="btn btn-success o_dropdown_toggle"
+                           data-bs-toggle="dropdown"
+                           role="button">
+                            <i class="fa fa-cube me-1"/>
+                            Productos
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <button name="action_detect_product_tables"
+                                    type="object"
+                                    string="Detectar tablas candidatas"
+                                    icon="fa-search"
+                                    class="dropdown-item"/>
+
+                            <button name="action_choose_product_table"
+                                    type="object"
+                                    string="Elegir tabla de productos"
+                                    icon="fa-table"
+                                    class="dropdown-item"/>
+
+                            <button name="action_preview_products"
+                                    type="object"
+                                    string="Preview productos (lectura)"
+                                    icon="fa-eye"
+                                    class="dropdown-item"/>
+                        </div>
+                    </div>
                 </header>
 
                 <sheet>
@@ -72,6 +110,9 @@
                     <group string="Proveedores"
                            modifiers="{'invisible': [['import_proveedores', '=', false]]}">
                         <field name="provider_table" readonly="1"/>
+                    </group>
+                    <group string="Productos">
+                        <field name="product_table" readonly="1"/>
                     </group>
 
                     <group string="Conexión PostgreSQL"

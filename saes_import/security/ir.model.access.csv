@@ -9,6 +9,8 @@ access_saes_detected_table,saes.detected.table,model_saes_detected_table,base.gr
 access_saes_import_config,saes.import.config,model_saes_import_config,base.group_system,1,1,1,1
 access_saes_provider_table_option,saes.provider.table.option,model_saes_provider_table_option,base.group_user,1,1,1,1
 access_saes_provider_table_selector,saes.provider.table.selector,model_saes_provider_table_selector,base.group_user,1,1,1,1
+access_product_table_option,product.table.option,model_product_table_option,base.group_user,1,1,1,1
+access_product_table_selector,product.table.selector,model_product_table_selector,base.group_user,1,1,1,1
 
 
 
