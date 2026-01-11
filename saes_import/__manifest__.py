@@ -15,10 +15,11 @@
     "data": [
         "security/ir.model.access.csv",
         "views/saes_config_view.xml",
-        "views/saes_menu.xml",
-        "views/saes_table_selector_views.xml",
-        "views/saes_client_preview_wizard.xml",
-        "views/saes_detected_tables_wizard.xml"
+        "views/buttons_menu.xml",
+        "views/table_clients_selector_views.xml",
+        "views/clients_table_preview_wizard.xml",
+        "views/detected_all_tables_wizard.xml",
+        "views/provider_table_selector.xml"
     ],
     "installable": True,
     "application": False,

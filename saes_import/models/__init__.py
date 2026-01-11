@@ -1,16 +1,8 @@
-from . import saes_client_table_option
-from . import saes_sqlserver
-from . import saes_config
+from . import sqlserver_configuration
+from . import config_principal
 from . import res_partner
-from . import saes_detector
-from . import saes_clients_import
-from . import saes_table_selector
-from . import saes_client_preview_wizard
-from . import saes_detected_table
-from . import saes_detected_tables_wizard
-from . import saes_provider_table_selector
-from . import  saes_provider_table_option
-
-
-
-
+from . import detector_all_methods
+from .client import clients_import, client_preview_wizard, client_table_option, clients_table_selector
+from . import detected_all_table
+from . import detected_all_tables_wizard
+from .provider import provider_table_option, provider_table_selector

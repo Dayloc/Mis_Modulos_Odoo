@@ -1,6 +1,8 @@
 from odoo import models, fields
 from odoo.exceptions import UserError
-from .saes_sqlserver import SaesSQLServerMixin
+from .sqlserver_configuration import SaesSQLServerMixin
+from . import detector_all_methods
+
 import psycopg2
 
 
@@ -79,8 +81,6 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         }
 
     # seleccionar tablas
-
-
     def action_choose_client_table(self):
         self.ensure_one()
 
@@ -208,6 +208,32 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
                 "sticky": True,
             },
         }
+    # candidatas a tablas de provedores
+    def action_detect_provider_tables(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_provider_tables(self)
+
+        if not tables:
+            raise UserError("No se detectaron tablas candidatas a proveedores.")
+
+        wizard = self.env["saes.detected.tables.wizard"].create({})
+
+        for t in tables:
+            self.env["saes.detected.table"].create({
+                "name": t,
+                "wizard_id": wizard.id,
+            })
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Tablas candidatas a proveedores",
+            "res_model": "saes.detected.tables.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "res_id": wizard.id,
+        }
+
     # buscar opciones para provedores
     def action_choose_provider_table(self):
         self.ensure_one()
@@ -217,27 +243,131 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         if not tables:
             raise UserError("No se detectaron tablas de proveedores.")
 
-        # limpiar opciones anteriores
-        self.env["saes.provider.table.option"].search([
-            ("config_id", "=", self.id)
-        ]).unlink()
+        Option = self.env["saes.provider.table.option"]
 
-        # crear opciones nuevas
         for t in tables:
-            self.env["saes.provider.table.option"].create({
-                "name": t,
-                "config_id": self.id,
-            })
+            if not Option.search([
+                ("name", "=", t),
+                ("config_id", "=", self.id),
+            ], limit=1):
+                Option.create({
+                    "name": t,
+                    "config_id": self.id,
+                })
 
         return {
             "type": "ir.actions.act_window",
             "name": "Elegir tabla de proveedores",
             "res_model": "saes.provider.table.selector",
             "view_mode": "form",
+            "views": [
+                (self.env.ref(
+                    "saes_import.view_saes_provider_table_selector_form"
+                ).id, "form")
+            ],
             "target": "new",
             "context": {
                 "active_id": self.id,
             },
         }
 
+    # previo de provedores
+    def _preview_providers(self, limit=5):
+        self.ensure_one()
 
+        if not self.provider_table:
+            raise UserError("No hay tabla de proveedores seleccionada.")
+
+        detector = self.env["saes.detector"]
+        columns = detector.detect_provider_columns(self, self.provider_table)
+
+        if not columns:
+            raise UserError("No se pudieron detectar columnas de proveedores.")
+
+        sql_cols = []
+        for key, col in columns.items():
+            if col:
+                sql_cols.append(f"{col} AS {key}")
+
+        if not sql_cols:
+            raise UserError("No hay columnas válidas para preview.")
+
+        if self.db_type == "postgres":
+            query = f"""
+                SELECT {', '.join(sql_cols)}
+                FROM {self.provider_table}
+                LIMIT {limit}
+            """
+        else:
+            query = f"""
+                SELECT TOP {limit} {', '.join(sql_cols)}
+                FROM {self.provider_table}
+            """
+
+        return self._execute_sql(query)
+
+    def action_preview_providers(self):
+        self.ensure_one()
+
+        rows = self._preview_providers(limit=5)
+
+        if not rows:
+            raise UserError("No hay datos para mostrar.")
+
+        text = []
+        for r in rows:
+            text.append(
+                f"""Proveedor: {r.get('name', '—')}
+    Código: {r.get('code', '—')}
+    Email: {r.get('email', '—')}
+    """
+            )
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Preview proveedores",
+            "res_model": "saes.client.preview.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_preview_text": "\n-----------------\n".join(text)
+            },
+        }
+
+    def detect_provider_columns(self, config, table):
+        columns = self.detect_columns(config, table)
+
+        mapping = {
+            "code": None,
+            "name": None,
+            "email": None,
+            "phone": None,
+        }
+
+        keywords = {
+            "code": [
+                "codigo", "code", "cve",
+                "id_proveedor", "proveedor",
+                "vendor", "supplier"
+            ],
+            "name": [
+                "nombre", "name",
+                "razon", "empresa",
+                "proveedor", "vendor"
+            ],
+            "email": [
+                "email", "mail", "correo"
+            ],
+            "phone": [
+                "telefono", "tel",
+                "phone", "movil", "cel"
+            ],
+        }
+
+        for col in columns:
+            c = col.lower()
+            for field, keys in keywords.items():
+                if mapping[field] is None and any(k in c for k in keys):
+                    mapping[field] = col
+
+        return mapping

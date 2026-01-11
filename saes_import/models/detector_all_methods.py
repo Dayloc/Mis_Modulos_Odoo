@@ -141,3 +141,59 @@ class SaesDetector(models.AbstractModel):
             t for t in tables
             if any(k in t.lower() for k in keywords)
         ]
+
+    def detect_provider_columns(self, config, table):
+        columns = self.detect_columns(config, table)
+
+        mapping = {
+            "code": None,
+            "name": None,
+            "email": None,
+            "phone": None,
+        }
+
+        keywords = {
+            "code": [
+                "codigo", "code", "cve",
+                "id_proveedor", "proveedor",
+                "vendor", "supplier"
+            ],
+            "name": [
+                "nombre", "name",
+                "razon", "empresa",
+                "proveedor", "vendor"
+            ],
+            "email": [
+                "email", "mail", "correo"
+            ],
+            "phone": [
+                "telefono", "tel",
+                "phone", "movil", "cel"
+            ],
+        }
+
+        for col in columns:
+            c = col.lower()
+            for field, keys in keywords.items():
+                if mapping[field] is None and any(k in c for k in keys):
+                    mapping[field] = col
+
+        return mapping
+
+    # detector tabla productos
+    def detect_product_tables(self, config):
+        tables = self.detect_tables(config)
+
+        keywords = [
+            "producto", "productos",
+            "articulo", "articulos",
+            "item", "items",
+            "product", "products",
+            "art",
+            "stock",
+        ]
+
+        return [
+            t for t in tables
+            if any(k in t.lower() for k in keywords)
+        ]

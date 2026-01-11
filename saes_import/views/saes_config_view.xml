@@ -5,43 +5,73 @@
         <field name="arch" type="xml">
             <form string="Configuración Importador SAE">
                 <header>
-                    <button name="action_preview_clients"
-                            icon="fa-eye"
-                            string="Preview clientes"
-                            type="object"
-                            class="btn-info btn-sm"
-                            invisible="not import_clientes"/>
                     <button name="action_detect_tables"
-                            string="Detectar tablas"
+                            string="Detectar tablas existentes"
                             type="object"
-                            class="btn-secondary"/>
-                    <button name="action_detect_client_tables"
-                            string="Detectar tablas Candidatas de clientes"
-                            type="object"
-                            class="btn-secondary"/>
+                            class="btn-primary"/>
 
-                    <button name="action_choose_client_table"
-                            string="Elegir tabla clientes"
-                            type="object"
-                            class="btn-secondary"/>
-                    <button name="action_preview_clients"
-                            string="Preview clientes (lectura)"
-                            icon="fa-eye"
-                            type="object"
-                            class="btn-info"/>
-                    <button name="action_choose_provider_table"
-                            string="Elegir tabla proveedores"
-                            type="object"
-                            modifiers="{'invisible': [['import_proveedores', '=', false]]}"/>
+                    <div class="o_dropdown">
+                        <a class="btn btn-secondary o_dropdown_toggle"
+                           data-bs-toggle="dropdown"
+                           role="button">
+                            Clientes
+                        </a>
 
+                        <div class="dropdown-menu">
+                            <button name="action_detect_client_tables"
+                                    type="object"
+                                    string="Detectar tablas candidatas"
+                                    class="dropdown-item"/>
+
+                            <button name="action_choose_client_table"
+                                    type="object"
+                                    string="Elegir tabla clientes"
+                                    class="dropdown-item"/>
+
+                            <button name="action_preview_clients"
+                                    type="object"
+                                    string="Preview clientes (lectura)"
+                                    class="dropdown-item"/>
+                        </div>
+                    </div>
+
+                    <div class="o_dropdown">
+                        <a class="btn btn-secondary o_dropdown_toggle"
+                           data-bs-toggle="dropdown"
+                           role="button">
+                            Proveedores
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <button name="action_detect_provider_tables"
+                                    type="object"
+                                    string="Detectar tablas candidatas"
+                                    class="dropdown-item"/>
+
+                            <button name="action_choose_provider_table"
+                                    type="object"
+                                    string="Elegir tabla proveedores"
+                                    class="dropdown-item"/>
+
+                            <button name="action_preview_providers"
+                                    type="object"
+                                    string="Preview proveedores (lectura)"
+                                    class="dropdown-item"/>
+                        </div>
+                    </div>
 
                 </header>
+
                 <sheet>
                     <group string="Origen de datos">
                         <field name="db_type" widget="radio"/>
                     </group>
                     <group string="Clientes">
                         <field name="client_table" readonly="1"/>
+                    </group>
+                    <group string="Proveedores"
+                           modifiers="{'invisible': [['import_proveedores', '=', false]]}">
+                        <field name="provider_table" readonly="1"/>
                     </group>
 
                     <group string="Conexión PostgreSQL"

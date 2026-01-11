@@ -10,5 +10,4 @@ class SaesProviderTableOption(models.TransientModel):
     config_id = fields.Many2one(
         "saes.import.config",
         ondelete="cascade",
-        required=True,
     )
