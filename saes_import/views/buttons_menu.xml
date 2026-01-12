@@ -8,6 +8,7 @@
 
     <menuitem id="menu_saes_root"
               name="SAE Import"
+              web_icon="saes_import,static/description/icon.png"
               sequence="10"/>
 
     <menuitem id="menu_saes_config"

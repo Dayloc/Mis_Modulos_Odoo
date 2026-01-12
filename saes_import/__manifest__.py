@@ -24,5 +24,5 @@
         "views/sale_order_table_selector_view.xml"
     ],
     "installable": True,
-    "application": False,
+    "application": True,
 }
