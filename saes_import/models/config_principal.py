@@ -6,6 +6,7 @@ import pandas as pd
 
 
 
+
 class SaesImportConfig(models.Model, SaesSQLServerMixin):
     _name = "saes.import.config"
     _description = "Configuración Importador SAE"
@@ -48,16 +49,30 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         return self._get_sqlserver_connection()
 
     def _execute_sql(self, query):
-        conn = self._get_connection()
-        try:
-            cur = conn.cursor()
-            cur.execute(str(query))
+        if not isinstance(query, str):
+            raise UserError(f"Query inválida: {type(query)}")
 
-            cols = [c[0] for c in cur.description]
+        conn = self._get_connection()
+
+        # 🔥 SQL SERVER → pandas
+        if self.db_type == "sqlserver":
+            df = pd.read_sql(query, conn)
+            return df.to_dict(orient="records")
+
+        # PostgreSQL normal
+        try:
+            cursor = conn.cursor()
+            cursor.execute(query)
+
+            description = cursor.description
+            if not description:
+                return []
+
+            columns = [col[0] for col in description]
 
             rows = []
-            for r in cur:  # 👈 clave
-                rows.append(dict(zip(cols, r)))
+            for row in cursor:
+                rows.append(dict(zip(columns, row)))
 
             return rows
         finally:
@@ -135,8 +150,6 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         }
 
     # preview de clientes-solo lectura
-
-
     def _preview_clients(self, limit=5):
         self.ensure_one()
 
@@ -338,43 +351,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             },
         }
 
-    """def detect_provider_columns(self, config, table):
-        columns = self.detect_columns(config, table)
 
-        mapping = {
-            "code": None,
-            "name": None,
-            "email": None,
-            "phone": None,
-        }
-
-        keywords = {
-            "code": [
-                "codigo", "code", "cve",
-                "id_proveedor", "proveedor",
-                "vendor", "supplier"
-            ],
-            "name": [
-                "nombre", "name",
-                "razon", "empresa",
-                "proveedor", "vendor"
-            ],
-            "email": [
-                "email", "mail", "correo"
-            ],
-            "phone": [
-                "telefono", "tel",
-                "phone", "movil", "cel"
-            ],
-        }
-
-        for col in columns:
-            c = col.lower()
-            for field, keys in keywords.items():
-                if mapping[field] is None and any(k in c for k in keys):
-                    mapping[field] = col
-
-        return mapping"""
     # acción para abrir selector de productos
     def action_choose_product_table(self):
         self.ensure_one()
@@ -556,13 +533,23 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             raise UserError("No hay tabla de pedidos seleccionada.")
 
         detector = self.env["saes.detector"]
-        columns = detector.detect_sale_order_columns(self, self.sale_order_table)
+        columns = detector.detect_sale_order_columns(
+            self, self.sale_order_table
+        )
 
         sql_cols = []
+
         for key, col in columns.items():
-            if col:
-                col= str(col)
-                sql_cols.append(f"{col} AS {key}")
+            if not col:
+                continue
+
+            # escape según motor
+            if self.db_type == "postgres":
+                sql_col = f'"{col}"'
+            else:
+                sql_col = f'[{col}]'
+
+            sql_cols.append(f"{sql_col} AS {key}")
 
         if not sql_cols:
             raise UserError("No se detectaron columnas válidas para preview.")
@@ -585,6 +572,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         self.ensure_one()
 
         rows = self._preview_sale_orders(limit=5)
+
         if not rows:
             raise UserError("No hay datos para mostrar.")
 
@@ -647,3 +635,25 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
 
         return self._execute_sql(query)
 
+    #boton de importación de  prueba temporal
+    def action_import_one_client(self):
+        self.ensure_one()
+
+        from .client.clients_import import SaesClientImporter
+
+        importer = SaesClientImporter(self)
+        importer.import_clients(limit=1)
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": "Importación",
+                "message": "Cliente importado correctamente",
+                "type": "success",
+                "sticky": False,
+            },
+        }
+
+    def _normalize_code(self, value):
+        return value.strip().upper() if value else None

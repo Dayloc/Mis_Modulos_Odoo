@@ -137,7 +137,7 @@ class SaesDetector(models.AbstractModel):
         keywords = [
             "proveedor", "proveedores",
             "supplier", "suppliers",
-            "vendor", "vendors",
+            "vendor", "vendors","vendedor","vendedores"
             "prov",
         ]
 
@@ -160,7 +160,7 @@ class SaesDetector(models.AbstractModel):
             "code": [
                 "codigo", "code", "cve",
                 "id_proveedor", "proveedor",
-                "vendor", "supplier"
+                "vendor", "supplier",
             ],
             "name": [
                 "nombre", "name",
@@ -191,16 +191,16 @@ class SaesDetector(models.AbstractModel):
         keywords = [
             "producto", "productos",
             "articulo", "articulos",
-            "item", "items",
-            "product", "products",
-            "art",
+            "item", "items","product", "products","art",
             "stock",
         ]
 
-        return [
+        candidates = {
             t for t in tables
             if any(k in t.lower() for k in keywords)
-        ]
+        }
+
+        return sorted(candidates)
 
     # detector de columnas de producto
     def detect_product_columns(self, config, table):
@@ -218,7 +218,7 @@ class SaesDetector(models.AbstractModel):
                 "id_art", "articulo", "producto"
             ],
             "name": [
-                "nombre", "name", "descripcion", "desc"
+                "nombre", "name", "descripcion", "desc","usuario"
             ],
             "type": [
                 "tipo", "type", "servicio", "producto"
@@ -235,45 +235,23 @@ class SaesDetector(models.AbstractModel):
 
     # detector tablas de pedidos
     def detect_sale_order_tables(self, config):
-        """
-        Detecta tablas candidatas a PEDIDOS DE VENTA (SAE)
-        ❌ Excluye cualquier tabla que empiece por c_ o b_
-        """
+
 
         tables = self.detect_tables(config)
 
         # palabras clave claras de pedidos
         keywords = [
-            "pedido",
-            "pedidos",
-            "ped",
-            "pedv",
-            "pedido_venta",
-            "ped_ven",
-            "orden",
-            "orden_venta",
-            "ordenes",
-            "ventas",
-            "venta",
-            "presupuesto",
-            "pres",
-            "cotizacion",
-            "cotiza",
-            "numped",
-            "nroped",
-            "folio",
-            "order",
-            "orders",
-            "sale_order",
-            "sales_order",
-            "salesorder",
-            "so",
-            "so_header",
-            "so_master",
-            "so_hdr",
-            "quotation",
-            "quote",
-            "estimate",
+
+            "pedido", "pedidos",
+            "pedido_venta", "ped_venta", "ped_ven", "pedv",
+            "orden", "ordenes", "orden_venta",
+            "venta", "ventas","presupuesto", "presupuestos", "pres",
+            "cotizacion", "cotizaciones", "cotiza",
+            "numped", "num_ped", "nroped", "folio",
+            "pedido_cliente", "ped_cli","order", "orders",
+            "sale_order", "sales_order", "salesorder","so", "so_header", "so_master", "so_hdr",
+            "quotation", "quote", "estimate","customer_order", "customerorder","ped", "peds","pedico","ord", "ordv","sl_order",
+            "salord",
         ]
 
         # exclusiones claras
@@ -289,14 +267,14 @@ class SaesDetector(models.AbstractModel):
             t = table.lower()
 
             # fuera cabeceras y bancos SIEMPRE
-            if t.startswith(("c_", "b_", "d_")):
+            if t.startswith(( "b_", "d_")):
                 continue
 
-            # ❌ fuera basura conocida
+            # fuera basura conocida
             if any(b in t for b in blacklist):
                 continue
 
-            # ✅ solo si contiene palabras de pedido
+            # solo si contiene palabras de pedido
             if any(k in t for k in keywords):
                 candidates.append(table)
 
@@ -315,27 +293,49 @@ class SaesDetector(models.AbstractModel):
 
         keywords = {
             "number": {
-                "strong": ["order_number", "num_pedido", "pedido", "folio"],
-                "weak": ["numero", "num", "ped"],
+                "strong": [
+                    "numero", "num_pedido", "numped",
+                    "pedido", "folio"
+                ],
+                "weak": [
+                    "num"
+                ],
             },
             "date": {
-                "strong": ["fecha_pedido", "order_date"],
-                "weak": ["fecha", "date"],
+                "strong": [
+                    "fecha"
+                ],
+                "weak": [
+                    "date"
+                ],
             },
             "customer": {
-                "strong": ["cliente_id", "customer_id"],
-                "weak": ["cliente", "customer"],
+                "strong": [
+                    "empresa", "cliente", "customer"
+                ],
+                "weak": [
+                    "proveedor", "prov"
+                ],
             },
             "total": {
-                "strong": ["total_pedido", "importe_total"],
-                "weak": ["total", "importe", "amount"],
+                "strong": [
+                    "totalped", "totaldoc", "totaldiv"
+                ],
+                "weak": [
+                    "total", "importe"
+                ],
             },
             "state": {
-                "strong": ["estado_pedido", "order_status"],
-                "weak": ["estado", "status"],
+                "strong": [
+                    "cancelado", "traspasado", "pronto"
+                ],
+                "weak": [
+                    "estado", "status"
+                ],
             },
         }
 
+        # primero strong
         for field, groups in keywords.items():
             for col in columns:
                 c = col.lower()
@@ -343,6 +343,7 @@ class SaesDetector(models.AbstractModel):
                     mapping[field] = col
                     break
 
+        # luego weak
         for field, groups in keywords.items():
             if mapping[field]:
                 continue
@@ -353,3 +354,8 @@ class SaesDetector(models.AbstractModel):
                     break
 
         return mapping
+
+
+    # importaciones
+    def _normalize_code(self, value):
+        return value.strip().upper() if value else None
