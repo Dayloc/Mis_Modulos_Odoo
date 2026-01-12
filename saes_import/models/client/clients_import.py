@@ -1,9 +1,13 @@
+import json
+import os
+
 from odoo.exceptions import UserError
 
 class SaesClientImporter:
     def __init__(self, config):
         self.config = config
         self.env = config.env
+        self.country_map = self._load_country_map()
 
     def import_clients(self, limit=None):
         """
@@ -128,6 +132,22 @@ class SaesClientImporter:
         # País y provincia
         phone_code = self._normalize_phone_code(row.get("pais"))
         country = self._find_country_by_phone_code(phone_code)
+        if not country:
+            zip_code = (row.get("zip") or "").strip()
+            if zip_code.isdigit() and len(zip_code) >= 2:
+                prov_code = zip_code[:2]
+                if "01" <= prov_code <= "52":
+                    country = self.env["res.country"].search(
+                        [("code", "=", "ES")],
+                        limit=1
+                    )
+        """if not country:
+            raise UserError(
+                f"DEBUG PAIS | code={code} "
+                f"| raw={row.get('pais')} "
+                f"| zip={row.get('zip')} "
+                f"| street={row.get('street')}"
+            )"""
         state = self._find_state_by_name(country, row.get("state"))
 
         # Teléfonos
@@ -140,7 +160,8 @@ class SaesClientImporter:
 
         # Notas (fax + teléfonos extra)
         extra_notes = []
-
+        if not country and phone_code:
+            extra_notes.append(f"Código de país no reconocido: {phone_code}")
         if fax_full:
             extra_notes.append(f"Fax: {fax_full}")
 
@@ -217,10 +238,23 @@ class SaesClientImporter:
         if not phone_code:
             return None
 
-        return self.env["res.country"].search(
+        # 1️⃣ Buscar en Odoo (phone_code real)
+        country = self.env["res.country"].search(
             [("phone_code", "=", phone_code)],
             limit=1
         )
+        if country:
+            return country
+
+        # 2️⃣ Buscar en nuestro archivo propio
+        country_code = self.country_map.get(phone_code)
+        if country_code:
+            return self.env["res.country"].search(
+                [("code", "=", country_code)],
+                limit=1
+            )
+
+        return None
 
     def _find_state_by_name(self, country, state_name):
         if not country or not state_name:
@@ -283,4 +317,21 @@ class SaesClientImporter:
                 and vat[:8].isdigit()
                 and vat[8].isalpha()
         )
+
+    # buscar pais en json
+    def _load_country_map(self):
+        path = os.path.join(
+            os.path.dirname(__file__),  # models/client/
+            "..",  # models/
+            "..",  # saes_import/
+            "data",
+            "country_code_map.json"
+        )
+        path = os.path.abspath(path)
+
+        if not os.path.exists(path):
+            raise UserError(f"NO SE ENCUENTRA EL JSON: {path}")
+
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
 
