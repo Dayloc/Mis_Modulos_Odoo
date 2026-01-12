@@ -127,10 +127,11 @@
                         </div>
                     </div>
                     <button
-                            name="action_import_one_client"
+                            name="action_import_all_clients"
                             type="object"
-                            string="Importar 1 cliente (test)"
+                            string="Importar Todos los clientes (test)"
                             class="btn-primary"
+                            confirm="⚠️ Esto importará TODOS los clientes. ¿Deseas continuar?"
                     />
 
 

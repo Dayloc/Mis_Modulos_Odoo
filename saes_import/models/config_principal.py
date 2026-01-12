@@ -636,20 +636,20 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         return self._execute_sql(query)
 
     #boton de importación de  prueba temporal
-    def action_import_one_client(self):
+    def action_import_all_clients(self):
         self.ensure_one()
 
         from .client.clients_import import SaesClientImporter
 
         importer = SaesClientImporter(self)
-        importer.import_clients(limit=1)
+        importer.import_clients()
 
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
                 "title": "Importación",
-                "message": "Cliente importado correctamente",
+                "message": "Clientes importados correctamente",
                 "type": "success",
                 "sticky": False,
             },

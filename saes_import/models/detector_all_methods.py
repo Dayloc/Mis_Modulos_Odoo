@@ -111,6 +111,12 @@ class SaesDetector(models.AbstractModel):
             "street": None,
             "zip": None,
             "city": None,
+            "pais": None,
+            "state": None,
+            "phone": None,
+            "mobile": None,
+            "vat": None,
+            "name2": None,
         }
 
         keywords = {
@@ -120,6 +126,14 @@ class SaesDetector(models.AbstractModel):
             "street": ["direccion", "dir", "address", "calle"],
             "zip": ["cp", "zip", "postal", "codpost"],
             "city": ["ciudad", "city", "poblacion"],
+            "pais": ["pais", "country", "prefijo", "codpais"],
+            "state": ["provincia", "estado", "state", "region"],
+            "phone": ["telefono", "tel", "phone", "fijo"],
+            "mobile": ["movil", "mobile", "celular"],
+            "vat": ["cif", "nif", "vat", "dni"],
+            "name2": ["nombre2", "razon2", "nombre_2", "denominacion2"]
+
+
         }
 
         for col in columns:
@@ -357,5 +371,9 @@ class SaesDetector(models.AbstractModel):
 
 
     # importaciones
+    # normalizar país con code
     def _normalize_code(self, value):
         return value.strip().upper() if value else None
+
+
+
