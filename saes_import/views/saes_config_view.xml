@@ -3,7 +3,7 @@
         <field name="name">saes.import.config.form</field>
         <field name="model">saes.import.config</field>
         <field name="arch" type="xml">
-            <form string="Configuración Importador SAE">
+            <form string="Configuración Importador SAGES">
 
                 <header>
                     <button name="action_detect_tables"
@@ -133,6 +133,12 @@
                             class="btn-primary"
                             confirm="⚠️ Esto importará TODOS los clientes. ¿Deseas continuar?"
                     />
+                    <button name="action_import_all_providers"
+                            string="Importar proveedores"
+                            type="object"
+                            class="btn-primary"
+                            confirm="⚠️ Esto importará 5 de los clientes. ¿Deseas continuar?"
+                           />
 
 
                 </header>

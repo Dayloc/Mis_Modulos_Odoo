@@ -30,12 +30,13 @@ class SaleOrderTableSelector(models.TransientModel):
         return {"type": "ir.actions.act_window_close"}
 
     def action_preview_sale_orders_raw(self):
+        #raise UserError("DEBUG VERSION NUEVA SIN _execute_sql")
+        #raise UserError("DEBUG: entro en preview sale orders")
         self.ensure_one()
 
         config = self.env["saes.import.config"].browse(
             self.env.context.get("active_id")
         )
-
         if not config.exists():
             raise UserError("No se encontró la configuración activa.")
 
@@ -44,26 +45,43 @@ class SaleOrderTableSelector(models.TransientModel):
 
         table = self.table_id.name
 
-        #  DIFERENCIAMOS SEGÚN DB
-        if config.db_type == "postgres":
-            query = f"""
-                SELECT *
-                FROM {table}
-                LIMIT 5
-            """
-        else:
-            query = f"""
-                SELECT TOP 5 *
-                FROM {table}
-            """
+        conn = config._get_connection()
+        try:
+            cur = conn.cursor()
 
-        rows = config._execute_sql(query)
+            if config.db_type == "postgres":
+                query = f"SELECT * FROM {table} LIMIT 5"
+                cur.execute(query)
+                cols = [c[0] for c in cur.description]
+                rows = cur.fetchall()
+                data = [dict(zip(cols, r)) for r in rows]
 
-        if not rows:
+            else:
+
+                cur.execute(f"SELECT TOP 0 * FROM {table}")
+                cols = [c[0] for c in cur.description]
+
+                casted_cols = [
+                    f"CAST([{c}] AS NVARCHAR(MAX)) AS [{c}]"
+                    for c in cols
+                ]
+
+                query = f"""
+                    SELECT TOP 5 {", ".join(casted_cols)}
+                    FROM {table}
+                """
+                cur.execute(query)
+                rows = cur.fetchall()
+                data = [dict(zip(cols, r)) for r in rows]
+
+        finally:
+            conn.close()
+
+        if not data:
             raise UserError("No hay datos para mostrar.")
 
         blocks = []
-        for row in rows:
+        for row in data:
             blocks.append(
                 "\n".join(f"{k}: {v}" for k, v in row.items())
             )
@@ -78,3 +96,4 @@ class SaleOrderTableSelector(models.TransientModel):
                 "default_preview_text": "\n\n-----------------\n\n".join(blocks)
             },
         }
+

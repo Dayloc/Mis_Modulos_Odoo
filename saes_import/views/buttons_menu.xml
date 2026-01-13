@@ -1,13 +1,13 @@
 <odoo>
 
     <record id="action_saes_import_config" model="ir.actions.act_window">
-        <field name="name">Importador SAE</field>
+        <field name="name">Importador SAGES</field>
         <field name="res_model">saes.import.config</field>
         <field name="view_mode">list,form</field>
     </record>
 
     <menuitem id="menu_saes_root"
-              name="SAE Import"
+              name="SAGES Import"
               web_icon="saes_import,static/description/icon.png"
               sequence="10"/>
 

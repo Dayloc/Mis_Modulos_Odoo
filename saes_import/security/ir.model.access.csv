@@ -11,6 +11,11 @@ access_product_table_selector,product.table.selector,model_product_table_selecto
 access_product_table_option,product.table.option,model_product_table_option,base.group_user,1,1,1,1
 access_sale_order_table_selector,sale.order.table.selector,model_sale_order_table_selector,base.group_user,1,0,1,0
 access_sale_order_table_option,sale.order.table.option,model_sale_order_table_option,base.group_user,1,1,1,1
+access_saes_provider_preview_wizard,access.saes.provider.preview.wizard,model_saes_provider_preview_wizard,base.group_user,1,0,0,0
+access_saes_table_selector,access.saes.table.selector,model_saes_table_selector,base.group_user,1,1,1,1
+access_saes_import_config,access.saes.import.config,model_saes_import_config,base.group_user,1,1,1,1
+
+
 
 
 

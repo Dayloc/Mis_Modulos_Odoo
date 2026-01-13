@@ -32,18 +32,50 @@ class ProductTableSelector(models.TransientModel):
         config = self.env["saes.import.config"].browse(
             self.env.context.get("active_id")
         )
-
-        if not config:
+        if not config.exists():
             raise UserError("No hay configuración activa.")
 
-        rows = config.preview_raw_table(self.table_id.name)
+        table = self.table_id.name
 
-        if not rows:
+        conn = config._get_connection()
+        try:
+            cur = conn.cursor()
+
+            if config.db_type == "postgres":
+                query = f"SELECT * FROM {table} LIMIT 5"
+                cur.execute(query)
+                cols = [c[0] for c in cur.description]
+                rows = cur.fetchall()
+                data = [dict(zip(cols, r)) for r in rows]
+
+            else:
+                cur.execute(f"SELECT TOP 0 * FROM {table}")
+                cols = [c[0] for c in cur.description]
+
+                casted_cols = [
+                    f"CAST([{c}] AS NVARCHAR(MAX)) AS [{c}]"
+                    for c in cols
+                ]
+
+                query = f"""
+                    SELECT TOP 5 {", ".join(casted_cols)}
+                    FROM {table}
+                """
+                cur.execute(query)
+                rows = cur.fetchall()
+                data = [dict(zip(cols, r)) for r in rows]
+
+        finally:
+            conn.close()
+
+        if not data:
             raise UserError("No hay datos para mostrar.")
 
         blocks = []
-        for row in rows:
-            blocks.append("\n".join(f"{k}: {v}" for k, v in row.items()))
+        for row in data:
+            blocks.append(
+                "\n".join(f"{k}: {v}" for k, v in row.items())
+            )
 
         return {
             "type": "ir.actions.act_window",

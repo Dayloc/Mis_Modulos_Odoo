@@ -571,20 +571,22 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
     def action_preview_sale_orders(self):
         self.ensure_one()
 
+        if not self.sale_order_table:
+            raise UserError("No hay tabla de pedidos seleccionada.")
+
         rows = self._preview_sale_orders(limit=5)
 
         if not rows:
             raise UserError("No hay datos para mostrar.")
 
-        text = []
+        blocks = []
         for r in rows:
-            text.append(
-                f"""Pedido: {r.get('number', '—')}
-    Fecha: {r.get('date', '—')}
-    Cliente: {r.get('customer', '—')}
-    Total: {r.get('total', '—')}
-    Estado: {r.get('state', '—')}
-    """
+            blocks.append(
+                f"""Pedido: {r.get('number') or '—'}
+    Fecha: {r.get('date') or '—'}
+    Cliente: {r.get('customer') or '—'}
+    Total: {r.get('total') or '—'}
+    Estado: {r.get('state') or '—'}"""
             )
 
         return {
@@ -594,66 +596,151 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             "view_mode": "form",
             "target": "new",
             "context": {
-                "default_preview_text": "\n-----------------\n".join(text)
+                "default_preview_text": "\n-----------------\n".join(blocks)
             },
         }
 
-    def _preview_sale_orders_raw(self, limit=5):
+    def _preview_sale_orders(self, limit=5):
         self.ensure_one()
 
         if not self.sale_order_table:
             raise UserError("No hay tabla de pedidos seleccionada.")
 
-        if self.db_type == "postgres":
-            query = f"""
-                SELECT *
-                FROM {self.sale_order_table}
-                LIMIT {limit}
-            """
-        else:
-            query = f"""
-                SELECT TOP {limit} *
-                FROM {self.sale_order_table}
-            """
+        detector = self.env["saes.detector"]
+        columns = detector.detect_sale_order_columns(
+            self, self.sale_order_table
+        )
 
-        return self._execute_sql(query)
+        sql_cols = []
+        for key, col in columns.items():
+            if not col:
+                continue
+
+            if self.db_type == "postgres":
+                sql_col = f'"{col}"'
+            else:
+                sql_col = f'[{col}]'
+
+            sql_cols.append(f"{sql_col} AS {key}")
+
+        if not sql_cols:
+            raise UserError("No se detectaron columnas válidas para preview.")
+
+        conn = self._get_connection()
+        try:
+            cur = conn.cursor()
+
+            if self.db_type == "postgres":
+                query = f"""
+                    SELECT {', '.join(sql_cols)}
+                    FROM {self.sale_order_table}
+                    LIMIT {limit}
+                """
+                cur.execute(query)
+                cols = [c[0] for c in cur.description]
+                rows = cur.fetchall()
+
+            else:
+                # SQL Server SAFE MODE
+                cur.execute(f"SELECT TOP 0 {', '.join(sql_cols)} FROM {self.sale_order_table}")
+                cols = [c[0] for c in cur.description]
+
+                casted_cols = [
+                    f"CAST({c.split(' AS ')[0]} AS NVARCHAR(MAX)) AS {c.split(' AS ')[1]}"
+                    for c in sql_cols
+                ]
+
+                query = f"""
+                    SELECT TOP {limit} {', '.join(casted_cols)}
+                    FROM {self.sale_order_table}
+                """
+                cur.execute(query)
+                rows = cur.fetchall()
+
+            return [dict(zip(cols, r)) for r in rows]
+
+        finally:
+            conn.close()
 
     def preview_raw_table(self, table, limit=5):
         self.ensure_one()
 
-        if self.db_type == "postgres":
-            query = f"""
-                SELECT *
-                FROM {table}
-                LIMIT {limit}
-            """
-        else:
-            query = f"""
-                SELECT TOP {limit} *
-                FROM {table}
-            """
+        conn = self._get_connection()
+        try:
+            cur = conn.cursor()
 
-        return self._execute_sql(query)
+            if self.db_type == "postgres":
+                query = f"""
+                    SELECT *
+                    FROM {table}
+                    LIMIT {limit}
+                """
+                cur.execute(query)
+                cols = [c[0] for c in cur.description]
+                rows = cur.fetchall()
 
-    #boton de importación de  prueba temporal
+            else:
+                # SQL Server SAFE MODE
+                cur.execute(f"SELECT TOP 0 * FROM {table}")
+                cols = [c[0] for c in cur.description]
+
+                casted_cols = [
+                    f"CAST([{c}] AS NVARCHAR(MAX)) AS [{c}]"
+                    for c in cols
+                ]
+
+                query = f"""
+                    SELECT TOP {limit} {", ".join(casted_cols)}
+                    FROM {table}
+                """
+                cur.execute(query)
+                rows = cur.fetchall()
+
+            return [dict(zip(cols, r)) for r in rows]
+
+        finally:
+            conn.close()
+
+        # boton de importación de  prueba temporal
     def action_import_all_clients(self):
+            self.ensure_one()
+
+            from .client.clients_import import SaesClientImporter
+
+            importer = SaesClientImporter(self)
+            importer.import_clients()
+
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": "Importación",
+                    "message": "Clientes importados correctamente",
+                    "type": "success",
+                    "sticky": False,
+                },
+            }
+
+    def _normalize_code(self, value):
+            return value.strip().upper() if value else None
+
+    #boton de importar proveedores
+    def action_import_all_providers(self):
         self.ensure_one()
 
-        from .client.clients_import import SaesClientImporter
+        from .provider.providers_import import SaesProviderImporter
 
-        importer = SaesClientImporter(self)
-        importer.import_clients()
+        importer = SaesProviderImporter(self)
+        importer.import_providers()
 
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
                 "title": "Importación",
-                "message": "Clientes importados correctamente",
+                "message": "Proveedores importados correctamente",
                 "type": "success",
                 "sticky": False,
             },
         }
 
-    def _normalize_code(self, value):
-        return value.strip().upper() if value else None

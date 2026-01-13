@@ -18,7 +18,7 @@ class SaesClientImporter:
 
         for row in rows:
             try:
-                self._import_single_client(row)
+                self._import_all_clients_importer(row)
             except Exception as e:
                 raise UserError(
                     f"Error importando cliente {row.get('code')}: {e}"
@@ -112,45 +112,54 @@ class SaesClientImporter:
 
         return self.config._execute_sql(query)
 
-    def _import_single_client(self, row):
+    def _import_all_clients_importer(self, row):
 
         code = self.config._normalize_code(row.get("code"))
-        name1 = (row.get("name") or "").strip()
-        name2 = (row.get("name2") or "").strip()
-
-        if name1 and name2:
-            full_name = f"{name1} - {name2}"
-        else:
-            full_name = name1 or f"Cliente {code}"
-
-
         if not code:
             raise UserError("Cliente sin código.")
 
+        name1 = (row.get("name") or "").strip()
+        name2 = (row.get("name2") or "").strip()
+        full_name = (
+            f"{name1} - {name2}"
+            if name1 and name2
+            else name1 or f"Cliente {code}"
+        )
+
         partner = self._find_existing_partner(code)
 
-        # País y provincia
+        # =========================
+        # PAÍS
+        # =========================
         phone_code = self._normalize_phone_code(row.get("pais"))
         country = self._find_country_by_phone_code(phone_code)
+
+        # fallback por CP → España
         if not country:
             zip_code = (row.get("zip") or "").strip()
             if zip_code.isdigit() and len(zip_code) >= 2:
-                prov_code = zip_code[:2]
-                if "01" <= prov_code <= "52":
+                if "01" <= zip_code[:2] <= "52":
                     country = self.env["res.country"].search(
                         [("code", "=", "ES")],
                         limit=1
                     )
-        """if not country:
-            raise UserError(
-                f"DEBUG PAIS | code={code} "
-                f"| raw={row.get('pais')} "
-                f"| zip={row.get('zip')} "
-                f"| street={row.get('street')}"
-            )"""
+
+        # fallback por prefijo VAT
+        raw_vat = self._normalize_vat(row.get("vat"))
+        if not country and raw_vat and raw_vat[:2].isalpha():
+            country = self.env["res.country"].search(
+                [("code", "=", raw_vat[:2].upper())],
+                limit=1
+            )
+
+        # =========================
+        # PROVINCIA
+        # =========================
         state = self._find_state_by_name(country, row.get("state"))
 
-        # Teléfonos
+        # =========================
+        # TELÉFONOS
+        # =========================
         phone_full = self._build_international_phone(phone_code, row.get("phone"))
         mobile_full = self._build_international_phone(phone_code, row.get("mobile"))
         fax_full = self._build_international_phone(phone_code, row.get("fax"))
@@ -158,32 +167,44 @@ class SaesClientImporter:
             phone_code, row.get("extra_phone")
         )
 
-        # Notas (fax + teléfonos extra)
+        # =========================
+        # NOTAS
+        # =========================
         extra_notes = []
+
         if not country and phone_code:
             extra_notes.append(f"Código de país no reconocido: {phone_code}")
+
         if fax_full:
             extra_notes.append(f"Fax: {fax_full}")
 
         if extra_phone_full:
             extra_notes.append(f"Teléfono extra: {extra_phone_full}")
 
-        #  CIF
-        vat = self._normalize_vat(row.get("vat"))
+        # =========================
+        # VAT / CUENTA AUXILIAR (CLAVE)
+        # =========================
         vat_to_save = None
+        aux_account = None
 
-        if vat:
-            if self._is_cif(vat):
-                vat_to_save = vat
-            elif self._is_nif(vat):
-                extra_notes.append(f"NIF detectado (empresa): {vat}")
-            else:
-                extra_notes.append(f"ID fiscal no reconocido: {vat}")
-        # Valores del partner
+        if raw_vat:
+            try:
+                # intentamos validar con Odoo
+                self.env["res.partner"]._check_vat(raw_vat, country=country)
+                vat_to_save = raw_vat
+            except Exception:
+                # si NO es válido → NO romper Odoo
+                aux_account = raw_vat
+
+        # =========================
+        # VALORES PARTNER
+        # =========================
+        Partner = self.env["res.partner"]
+        has_customer_rank = "customer_rank" in Partner._fields
+
         vals = {
             "ref": code,
             "name": full_name,
-            "vat": vat_to_save,
             "email": row.get("email"),
             "street": row.get("street"),
             "zip": row.get("zip"),
@@ -193,30 +214,37 @@ class SaesClientImporter:
             "state_id": state.id if state else False,
             "phone": phone_full,
             "mobile": mobile_full,
+            "vat": vat_to_save,
+            "x_aux_account": aux_account,
         }
 
+        if has_customer_rank:
+            vals["customer_rank"] = 1
 
-        #  Evitar duplicar notas existentes
+        # =========================
+        # EVITAR DUPLICAR NOTAS
+        # =========================
         if partner and partner.comment:
-            existing_comment = partner.comment
             extra_notes = [
                 note for note in extra_notes
-                if note not in existing_comment
+                if note not in partner.comment
             ]
 
-        #  Añadir notas sin sobrescribir
         if extra_notes:
             note = "\n".join(extra_notes)
-            if partner and partner.comment:
-                vals["comment"] = partner.comment + "\n" + note
-            else:
-                vals["comment"] = note
+            vals["comment"] = (
+                partner.comment + "\n" + note
+                if partner and partner.comment
+                else note
+            )
 
-        #  Crear o actualizar
+        # =========================
+        # CREATE / UPDATE
+        # =========================
         if partner:
             partner.write(vals)
         else:
-            self.env["res.partner"].create(vals)
+            Partner.create(vals)
 
     def _find_existing_partner(self, code):
         return self.env["res.partner"].search(
@@ -230,7 +258,7 @@ class SaesClientImporter:
 
         value = str(value).strip()
         value = value.replace("+", "")
-        value = value.lstrip("0")
+        #value = value.lstrip("0")
 
         return value or None
 
@@ -238,7 +266,7 @@ class SaesClientImporter:
         if not phone_code:
             return None
 
-        # 1️⃣ Buscar en Odoo (phone_code real)
+        # 1️ Buscar en Odoo (phone_code real)
         country = self.env["res.country"].search(
             [("phone_code", "=", phone_code)],
             limit=1
@@ -246,7 +274,7 @@ class SaesClientImporter:
         if country:
             return country
 
-        # 2️⃣ Buscar en nuestro archivo propio
+        # Buscar en nuestro archivo json propio
         country_code = self.country_map.get(phone_code)
         if country_code:
             return self.env["res.country"].search(

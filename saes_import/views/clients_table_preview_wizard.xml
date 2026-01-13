@@ -3,7 +3,7 @@
         <field name="name">saes.client.preview.wizard.form</field>
         <field name="model">saes.client.preview.wizard</field>
         <field name="arch" type="xml">
-            <form string="Preview de clientes SAE">
+            <form string="Preview de clientes SAGES">
                 <sheet>
                     <field name="preview_text" nolabel="1"
                            widget="text" readonly="1"/>

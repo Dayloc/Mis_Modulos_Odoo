@@ -149,10 +149,12 @@ class SaesDetector(models.AbstractModel):
         tables = self.detect_tables(config)
 
         keywords = [
-            "proveedor", "proveedores",
+
+            "proveedor","proveedores", "prov",
+            "prov.","vendedor","vendedores",
+
             "supplier", "suppliers",
-            "vendor", "vendors","vendedor","vendedores"
-            "prov",
+            "vendor","vendors",
         ]
 
         return [
@@ -167,27 +169,25 @@ class SaesDetector(models.AbstractModel):
             "code": None,
             "name": None,
             "email": None,
-            "phone": None,
+            "street": None,
+            "vat": None,
+            "zip": None,
+            "city": None,
+            "state": None,
+            "observaciones": None,
         }
 
         keywords = {
-            "code": [
-                "codigo", "code", "cve",
-                "id_proveedor", "proveedor",
-                "vendor", "supplier",
-            ],
-            "name": [
-                "nombre", "name",
-                "razon", "empresa",
-                "proveedor", "vendor"
-            ],
-            "email": [
-                "email", "mail", "correo"
-            ],
-            "phone": [
-                "telefono", "tel",
-                "phone", "movil", "cel"
-            ],
+            "code": ["codigo", "code", "id", "proveedor"],
+            "name": ["nombre", "name", "razon", "empresa"],
+            "email": ["email", "mail", "correo"],
+            "vat": ["cif", "nif", "vat", "dni"],
+            "street": ["direccion", "dir", "address", "calle"],
+            "zip": ["cp", "zip", "postal", "codpost"],
+            "city": ["ciudad", "city", "poblacion"],
+            "state": ["provincia", "estado", "state"],
+            "observaciones": ["observaciones", "obs", "comentarios", "notas"],
+
         }
 
         for col in columns:
@@ -223,20 +223,35 @@ class SaesDetector(models.AbstractModel):
         mapping = {
             "code": None,
             "name": None,
+            "name2": None,
+            "description": None,
+            "family": None,
+            "brand": None,
+            "price": None,
+            "cost": None,
+            "active": None,
             "type": None,
+            "weight": None,
+            "volume": None,
+            "stock": None,
+            "vat": None,
         }
 
         keywords = {
-            "code": [
-                "codigo", "code", "cve",
-                "id_art", "articulo", "producto"
-            ],
-            "name": [
-                "nombre", "name", "descripcion", "desc","usuario"
-            ],
-            "type": [
-                "tipo", "type", "servicio", "producto"
-            ],
+            "code": ["codigo", "cod"],
+            "name": ["nombre"],
+            "name2": ["nombre2"],
+            "description": ["observ", "carac", "definicion"],
+            "family": ["familia", "subfamilia"],
+            "brand": ["marca"],
+            "price": ["pvp", "precio", "importe", "pmcom"],
+            "cost": ["cost_ult", "cost"],
+            "active": ["baja"],
+            "type": ["tipo_art"],
+            "weight": ["peso"],
+            "volume": ["litros"],
+            "stock": ["stock"],
+            "vat": ["tipo_iva", "grupoiva"],
         }
 
         for col in columns:
@@ -249,7 +264,6 @@ class SaesDetector(models.AbstractModel):
 
     # detector tablas de pedidos
     def detect_sale_order_tables(self, config):
-
 
         tables = self.detect_tables(config)
 

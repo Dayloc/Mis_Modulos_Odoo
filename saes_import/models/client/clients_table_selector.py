@@ -12,6 +12,10 @@ class SaesTableSelector(models.TransientModel):
         required=True,
         ondelete="cascade",
     )
+    preview_text = fields.Text(
+        string="Preview",
+        readonly=True
+    )
 
     def action_confirm(self):
         self.ensure_one()
