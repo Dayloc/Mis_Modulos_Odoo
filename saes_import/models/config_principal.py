@@ -49,32 +49,35 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         return self._get_sqlserver_connection()
 
     def _execute_sql(self, query):
-        if not isinstance(query, str):
-            raise UserError(f"Query inválida: {type(query)}")
-
         conn = self._get_connection()
-
-        # 🔥 SQL SERVER → pandas
-        if self.db_type == "sqlserver":
-            df = pd.read_sql(query, conn)
-            return df.to_dict(orient="records")
-
-        # PostgreSQL normal
         try:
-            cursor = conn.cursor()
-            cursor.execute(query)
+            cur = conn.cursor()
 
-            description = cursor.description
-            if not description:
-                return []
+            if self.db_type == "sqlserver":
+                # 1️⃣ Obtener columnas
+                cur.execute(f"SELECT TOP 0 * FROM ({query}) t")
+                cols = [c[0] for c in cur.description]
 
-            columns = [col[0] for col in description]
+                # 2️⃣ CASTEAR TODO A NVARCHAR
+                casted_cols = [
+                    f"CAST([{c}] AS NVARCHAR(MAX)) AS [{c}]"
+                    for c in cols
+                ]
 
-            rows = []
-            for row in cursor:
-                rows.append(dict(zip(columns, row)))
+                safe_query = f"""
+                    SELECT {", ".join(casted_cols)}
+                    FROM ({query}) t
+                """
 
-            return rows
+                cur.execute(safe_query)
+            else:
+                cur.execute(query)
+
+            cols = [c[0] for c in cur.description]
+            rows = cur.fetchall()
+
+            return [dict(zip(cols, row)) for row in rows]
+
         finally:
             conn.close()
 
@@ -744,3 +747,20 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             },
         }
 
+    # importador de productos
+    def action_import_products(self):
+        self.ensure_one()
+        from .products.product_import import SaesProductImporter
+
+        importer = SaesProductImporter(self)
+        importer.import_products()
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": "Importación",
+                "message": "Productos importados correctamente",
+                "type": "success",
+            },
+        }

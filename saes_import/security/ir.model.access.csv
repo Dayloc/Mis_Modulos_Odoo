@@ -14,6 +14,7 @@ access_sale_order_table_option,sale.order.table.option,model_sale_order_table_op
 access_saes_provider_preview_wizard,access.saes.provider.preview.wizard,model_saes_provider_preview_wizard,base.group_user,1,0,0,0
 access_saes_table_selector,access.saes.table.selector,model_saes_table_selector,base.group_user,1,1,1,1
 access_saes_import_config,access.saes.import.config,model_saes_import_config,base.group_user,1,1,1,1
+access_product_template_saes,access.product.template.saes,product.model_product_template,base.group_user,1,1,1,0
 
 
 

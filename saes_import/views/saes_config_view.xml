@@ -138,7 +138,14 @@
                             type="object"
                             class="btn-primary"
                             confirm="⚠️ Esto importará 5 de los clientes. ¿Deseas continuar?"
-                           />
+                    />
+                    <button
+                            name="action_import_products"
+                            type="object"
+                            string="Importar productos"
+                            class="btn-primary"
+
+                    />
 
 
                 </header>
