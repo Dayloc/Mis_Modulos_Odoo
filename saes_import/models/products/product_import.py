@@ -49,7 +49,6 @@ class SaesProductImporter:
         for key, col in columns.items():
             if not col:
                 continue
-
             if self.config.db_type == "postgres":
                 sql_cols.append(f'"{col}" AS {key}')
             else:
@@ -57,22 +56,17 @@ class SaesProductImporter:
 
         limit_sql = ""
         if limit:
-            if self.config.db_type == "postgres":
-                limit_sql = f"LIMIT {limit}"
-            else:
-                limit_sql = f"TOP {limit}"
+            limit_sql = (
+                f"LIMIT {limit}"
+                if self.config.db_type == "postgres"
+                else f"TOP {limit}"
+            )
 
-        if self.config.db_type == "postgres":
-            query = f"""
-                SELECT {', '.join(sql_cols)}
-                FROM {self.config.product_table}
-                {limit_sql}
-            """
-        else:
-            query = f"""
-                SELECT {limit_sql} {', '.join(sql_cols)}
-                FROM {self.config.product_table}
-            """
+        query = (
+            f"SELECT {', '.join(sql_cols)} FROM {self.config.product_table} {limit_sql}"
+            if self.config.db_type == "postgres"
+            else f"SELECT {limit_sql} {', '.join(sql_cols)} FROM {self.config.product_table}"
+        )
 
         return self.config._execute_sql(query)
 
@@ -80,58 +74,90 @@ class SaesProductImporter:
     # IMPORTACIÓN INDIVIDUAL
     # ---------------------------------------------------------
 
-
     def _import_single_product(self, row):
 
-            code = self._clean(row.get("code"))
-            name = self._clean(row.get("name"))
-            name2 = self._clean(row.get("name2"))
+        # ---------- DATOS BÁSICOS ----------
+        code = self._clean(row.get("code"))
+        name = self._clean(row.get("name"))
+        name2 = self._clean(row.get("name2"))
 
-            if not code:
-                raise UserError(_("Producto sin código."))
+        if not code:
+            raise UserError("Producto sin código.")
 
-            product = self._find_existing_product(code)
+        template = self._find_existing_product(code)
 
-            full_name = (
-                f"{name} - {name2}"
-                if name and name2
-                else name or f"Producto {code}"
-            )
+        full_name = (
+            f"{name} - {name2}"
+            if name and name2
+            else name or f"Producto {code}"
+        )
 
-            # ---------- DESCRIPCIÓN ----------
-            description = self._clean(row.get("description"))
+        # campos
+        description = self._clean(row.get("description"))
+        price = self._to_float(row.get("price"))
+        cost = self._to_float(row.get("cost"))
+        weight = self._to_float(row.get("weight"))
+        volume = self._to_float(row.get("volume"))
+        stock_qty = self._to_float(row.get("stock"))
 
-            # ---------- PRECIOS ----------
-            price = self._to_float(row.get("price"))
-            cost = self._to_float(row.get("cost"))
+        active = True
+        if row.get("active") in (1, "1", True):
+            active = False
 
-            # ---------- ESTADO ----------
-            active = True
-            baja = row.get("active")
-            if baja in (1, "1", True):
-                active = False
+        # inventario
+        is_storable = stock_qty is not None
 
-            # ---------- PESO / VOLUMEN ----------
-            weight = self._to_float(row.get("weight"))
-            volume = self._to_float(row.get("volume"))
+        vals = {
+            "default_code": code,
+            "name": full_name,
+            "active": active,
+            "description": description or False,
+            "list_price": price or 0.0,
+            "standard_price": cost or 0.0,
+            "weight": weight or 0.0,
+            "volume": volume or 0.0,
+            "is_storable": is_storable,
+        }
 
-            # ---------- VALORES ----------
-            # ⚠️ NO PASAR type NI detailed_type EN ODOO 18
-            vals = {
-                "default_code": code,
-                "name": full_name,
-                "active": active,
-                "description": description or False,
-                "list_price": price or 0.0,
-                "standard_price": cost or 0.0,
-                "weight": weight or 0.0,
-                "volume": volume or 0.0,
-            }
+        # ---------- CREATE / UPDATE ----------
+        if template:
+            if is_storable and not template.is_storable:
+                template.write({"is_storable": True})
+            template.write(vals)
+        else:
+            template = self.env["product.template"].create(vals)
 
-            if product:
-                product.write(vals)
-            else:
-                self.env["product.template"].create(vals)
+        # 🔑 asegurar que la variante existe
+        self.env.flush_all()
+
+        product_variant = self.env["product.product"].search(
+            [("product_tmpl_id", "=", template.id)],
+            limit=1
+        )
+
+        if not product_variant or not is_storable or stock_qty is None:
+            return
+
+        # ---------- AJUSTE DE INVENTARIO REAL ----------
+        location = self.env["stock.location"].search(
+            [
+                ("usage", "=", "internal"),
+                ("company_id", "in", [self.env.company.id, False]),
+            ],
+            limit=1,
+        )
+
+        quant = self.env["stock.quant"].with_context(
+            inventory_mode=True,
+            force_company=self.env.company.id,
+        ).create({
+            "product_id": product_variant.id,
+            "location_id": location.id,
+            "inventory_quantity": stock_qty,
+        })
+
+        # 🔴 PASO CRÍTICO: aplicar inventario
+        quant.action_apply_inventory()
 
     # ---------------------------------------------------------
     # HELPERS
@@ -144,7 +170,7 @@ class SaesProductImporter:
         )
 
     def _clean(self, value):
-        if not value:
+        if value in (None, ""):
             return None
         return str(value).strip()
 

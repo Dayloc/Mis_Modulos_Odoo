@@ -2,7 +2,6 @@ from odoo import models, fields
 from odoo.exceptions import UserError
 from .sqlserver_configuration import SaesSQLServerMixin
 import psycopg2
-import pandas as pd
 
 
 
@@ -22,6 +21,8 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
     import_clientes = fields.Boolean()
     import_direcciones = fields.Boolean()
     import_proveedores = fields.Boolean()
+    import_pedidos = fields.Boolean()
+    import_productos = fields.Boolean()
 
     db_type = fields.Selection(
         [("postgres", "PostgreSQL"), ("sqlserver", "SQL Server")],
@@ -195,16 +196,27 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         if not rows:
             raise UserError("No hay datos para mostrar.")
 
-        text = []
-        for r in rows:
-            text.append(
-                        f"""Cliente: {r.get('name', '—')}
-        Código: {r.get('code', '—')}
-        Email: {r.get('email', '—')}
-        Dirección: {r.get('street', '—')}
-        CP / Ciudad: {r.get('zip', '—')} {r.get('city', '—')}
+        # columnas dinámicas (NO hardcodeadas)
+        columns = rows[0].keys()
+
+        html = """
+        <table class="table table-sm table-bordered o_list_view">
+            <thead class="table-info">
+                <tr>
         """
-            )
+
+        for col in columns:
+            html += f"<th>{col.upper()}</th>"
+
+        html += "</tr></thead><tbody>"
+
+        for row in rows:
+            html += "<tr>"
+            for col in columns:
+                html += f"<td>{row.get(col) or ''}</td>"
+            html += "</tr>"
+
+        html += "</tbody></table>"
 
         return {
             "type": "ir.actions.act_window",
@@ -213,9 +225,10 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             "view_mode": "form",
             "target": "new",
             "context": {
-                "default_preview_text": "\n-----------------\n".join(text)
+                "preview_html": html
             },
         }
+
     # notificaciones
     def _notify(self, title, message):
         return {
@@ -330,30 +343,40 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         self.ensure_one()
 
         rows = self._preview_providers(limit=5)
-
         if not rows:
             raise UserError("No hay datos para mostrar.")
 
-        text = []
-        for r in rows:
-            text.append(
-                f"""Proveedor: {r.get('name', '—')}
-    Código: {r.get('code', '—')}
-    Email: {r.get('email', '—')}
-    """
-            )
+        columns = rows[0].keys()
+
+        html = """
+        <table class="table table-sm table-bordered o_list_view">
+            <thead class="table-primary">
+                <tr>
+        """
+
+        for col in columns:
+            html += f"<th>{col.upper()}</th>"
+
+        html += "</tr></thead><tbody>"
+
+        for row in rows:
+            html += "<tr>"
+            for col in columns:
+                html += f"<td>{row.get(col) or ''}</td>"
+            html += "</tr>"
+
+        html += "</tbody></table>"
 
         return {
             "type": "ir.actions.act_window",
             "name": "Preview proveedores",
-            "res_model": "saes.client.preview.wizard",
+            "res_model": "saes.provider.preview.wizard",
             "view_mode": "form",
             "target": "new",
             "context": {
-                "default_preview_text": "\n-----------------\n".join(text)
+                "preview_html": html
             },
         }
-
 
     # acción para abrir selector de productos
     def action_choose_product_table(self):
@@ -426,29 +449,47 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         self.ensure_one()
 
         rows = self._preview_products(limit=5)
-
         if not rows:
             raise UserError("No hay datos para mostrar.")
 
-        text = []
-        for r in rows:
-            text.append(
-                f"""Producto: {r.get('name', '—')}
-    Código: {r.get('code', '—')}
-    Tipo: {r.get('type', '—')}
-    """
-            )
+        columns = list(rows[0].keys())
+
+        html = """
+        <div style="overflow-x:auto; max-width:100%;">
+            <table class="table table-sm table-bordered o_list_view">
+                <thead class="table-primary">
+                    <tr>
+        """
+
+        for col in columns:
+            html += f"<th>{col.upper()}</th>"
+
+        html += "</tr></thead><tbody>"
+
+        for row in rows:
+            html += "<tr>"
+            for col in columns:
+                val = row.get(col)
+                html += f"<td>{val if val is not None else ''}</td>"
+            html += "</tr>"
+
+        html += """
+                </tbody>
+            </table>
+        </div>
+        """
 
         return {
             "type": "ir.actions.act_window",
             "name": "Preview productos",
-            "res_model": "saes.client.preview.wizard",
+            "res_model": "product.preview.wizard",
             "view_mode": "form",
             "target": "new",
             "context": {
-                "default_preview_text": "\n-----------------\n".join(text)
+                "preview_html": html
             },
         }
+
     #tablas candidatas de productos
     def action_detect_product_tables(self):
         self.ensure_one()
@@ -474,7 +515,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             "target": "new",
             "res_id": wizard.id,
         }
-    #acción detectar tablas pedidos
+    #acción detectar tablas pedid
     def action_detect_sale_order_tables(self):
         self.ensure_one()
 
@@ -529,47 +570,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             },
         }
 
-    def _preview_sale_orders(self, limit=5):
-        self.ensure_one()
 
-        if not self.sale_order_table:
-            raise UserError("No hay tabla de pedidos seleccionada.")
-
-        detector = self.env["saes.detector"]
-        columns = detector.detect_sale_order_columns(
-            self, self.sale_order_table
-        )
-
-        sql_cols = []
-
-        for key, col in columns.items():
-            if not col:
-                continue
-
-            # escape según motor
-            if self.db_type == "postgres":
-                sql_col = f'"{col}"'
-            else:
-                sql_col = f'[{col}]'
-
-            sql_cols.append(f"{sql_col} AS {key}")
-
-        if not sql_cols:
-            raise UserError("No se detectaron columnas válidas para preview.")
-
-        if self.db_type == "postgres":
-            query = f"""
-                SELECT {', '.join(sql_cols)}
-                FROM {self.sale_order_table}
-                LIMIT {limit}
-            """
-        else:
-            query = f"""
-                SELECT TOP {limit} {', '.join(sql_cols)}
-                FROM {self.sale_order_table}
-            """
-
-        return self._execute_sql(query)
 
     def action_preview_sale_orders(self):
         self.ensure_one()
@@ -578,28 +579,44 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             raise UserError("No hay tabla de pedidos seleccionada.")
 
         rows = self._preview_sale_orders(limit=5)
-
         if not rows:
             raise UserError("No hay datos para mostrar.")
 
-        blocks = []
-        for r in rows:
-            blocks.append(
-                f"""Pedido: {r.get('number') or '—'}
-    Fecha: {r.get('date') or '—'}
-    Cliente: {r.get('customer') or '—'}
-    Total: {r.get('total') or '—'}
-    Estado: {r.get('state') or '—'}"""
-            )
+        columns = list(rows[0].keys())
+
+        html = """
+        <div style="overflow-x:auto; max-width:100%;">
+            <table class="table table-sm table-bordered o_list_view">
+                <thead class="table-primary">
+                    <tr>
+        """
+
+        for col in columns:
+            html += f"<th>{col.upper()}</th>"
+
+        html += "</tr></thead><tbody>"
+
+        for row in rows:
+            html += "<tr>"
+            for col in columns:
+                val = row.get(col)
+                html += f"<td>{val if val is not None else ''}</td>"
+            html += "</tr>"
+
+        html += """
+                </tbody>
+            </table>
+        </div>
+        """
 
         return {
             "type": "ir.actions.act_window",
             "name": "Preview pedidos",
-            "res_model": "saes.client.preview.wizard",
+            "res_model": "saes.sale.order.preview.wizard",
             "view_mode": "form",
             "target": "new",
             "context": {
-                "default_preview_text": "\n-----------------\n".join(blocks)
+                "preview_html": html
             },
         }
 
@@ -725,7 +742,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             }
 
     def _normalize_code(self, value):
-            return value.strip().upper() if value else None
+         return value.strip().upper() if value else None
 
     #boton de importar proveedores
     def action_import_all_providers(self):

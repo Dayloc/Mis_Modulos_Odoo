@@ -5,7 +5,7 @@
         <field name="arch" type="xml">
             <form string="Preview RAW Proveedores">
                 <group>
-                    <field name="preview_text" nolabel="1" readonly="1"
+                    <field name="preview_html" nolabel="1" readonly="1"
                            style="white-space: pre-wrap; font-family: monospace;"
                     />
                 </group>

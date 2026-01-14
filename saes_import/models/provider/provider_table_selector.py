@@ -47,10 +47,7 @@ class SaesProviderTableSelector(models.TransientModel):
                 cur.execute(query)
                 cols = [c[0] for c in cur.description]
                 rows = cur.fetchall()
-                data = [dict(zip(cols, r)) for r in rows]
-
             else:
-                # SQL Server SAFE MODE
                 cur.execute(f"SELECT TOP 0 * FROM {table}")
                 cols = [c[0] for c in cur.description]
 
@@ -60,32 +57,53 @@ class SaesProviderTableSelector(models.TransientModel):
                 ]
 
                 query = f"""
-                    SELECT TOP 5 {", ".join(casted_cols)}
-                    FROM {table}
-                """
+                       SELECT TOP 5 {", ".join(casted_cols)}
+                       FROM {table}
+                   """
                 cur.execute(query)
                 rows = cur.fetchall()
-                data = [dict(zip(cols, r)) for r in rows]
-
         finally:
             conn.close()
 
-        if not data:
+        if not rows:
             raise UserError("No hay datos para mostrar.")
 
-        blocks = []
-        for row in data:
-            blocks.append(
-                "\n".join(f"{k}: {v}" for k, v in row.items())
-            )
+        # solo primeras 6 columnas
+        preview_cols = cols[:10]
+
+        html = """
+           <div style="overflow-x:auto; max-width:100%;">
+               <table class="table table-sm table-bordered o_list_view">
+                   <thead class="table-info">
+                       <tr>
+           """
+
+        for col in preview_cols:
+            html += f"<th>{col.upper()}</th>"
+
+        html += "</tr></thead><tbody>"
+
+        for row in rows:
+            row_dict = dict(zip(cols, row))
+            html += "<tr>"
+            for col in preview_cols:
+                val = row_dict.get(col)
+                html += f"<td>{val if val is not None else ''}</td>"
+            html += "</tr>"
+
+        html += """
+                   </tbody>
+               </table>
+           </div>
+           """
 
         return {
             "type": "ir.actions.act_window",
-            "name": "Preview RAW Proveedores",
+            "name": f"Preview RAW ({table})",
             "res_model": "saes.provider.preview.wizard",
             "view_mode": "form",
             "target": "new",
             "context": {
-                "default_preview_text": "\n\n-----------------\n\n".join(blocks)
+                "preview_html": html
             },
         }

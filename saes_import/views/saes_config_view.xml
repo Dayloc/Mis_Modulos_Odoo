@@ -12,7 +12,7 @@
                             icon="fa-database"
                             class="btn-primary"/>
                     <div class="o_dropdown">
-                        <a class="btn btn-info o_dropdown_toggle"
+                        <a class="btn btn-info text-bg-light opacity-50 o_dropdown_toggle"
                            data-bs-toggle="dropdown"
                            role="button">
                             <i class="fa fa-users me-1"/>
@@ -38,7 +38,7 @@
                     </div>
 
                     <div class="o_dropdown">
-                        <a class="btn btn-warning o_dropdown_toggle"
+                        <a class="btn btn-warning opacity-50  o_dropdown_toggle"
                            data-bs-toggle="dropdown"
                            role="button">
                             <i class="fa fa-truck me-1"/>
@@ -68,7 +68,7 @@
 
 
                     <div class="o_dropdown">
-                        <a class="btn btn-success o_dropdown_toggle"
+                        <a class="btn btn-success  opacity-75 o_dropdown_toggle"
                            data-bs-toggle="dropdown"
                            role="button">
                             <i class="fa fa-cube me-1"/>
@@ -96,7 +96,7 @@
                         </div>
                     </div>
                     <div class="o_dropdown">
-                        <a class="btn btn-primary o_dropdown_toggle"
+                        <a class="btn btn-primary opacity-50 o_dropdown_toggle"
                            data-bs-toggle="dropdown"
                            role="button">
                             <i class="fa fa-shopping-cart me-1"/>
@@ -126,26 +126,54 @@
 
                         </div>
                     </div>
-                    <button
-                            name="action_import_all_clients"
-                            type="object"
-                            string="Importar Todos los clientes (test)"
-                            class="btn-primary"
-                            confirm="⚠️ Esto importará TODOS los clientes. ¿Deseas continuar?"
-                    />
-                    <button name="action_import_all_providers"
-                            string="Importar proveedores"
-                            type="object"
-                            class="btn-primary"
-                            confirm="⚠️ Esto importará 5 de los clientes. ¿Deseas continuar?"
-                    />
-                    <button
-                            name="action_import_products"
-                            type="object"
-                            string="Importar productos"
-                            class="btn-primary"
 
-                    />
+
+    <div class="o_dropdown">
+        <a class="btn btn-info o_dropdown_toggle"
+           data-bs-toggle="dropdown"
+           role="button"
+             invisible="not (import_clientes or import_direcciones or import_proveedores or import_productos or import_pedidos)">
+            ▼ IMPORTAR
+        </a>
+
+        <div class="dropdown-menu shadow">
+
+            <!-- CLIENTES -->
+            <button
+                name="action_import_all_clients"
+                type="object"
+                class="dropdown-item text-info"
+                invisible="not import_clientes"
+                confirm="⚠️ Esto importará TODOS los clientes. ¿Deseas continuar?">
+                <i class="fa fa-users me-2"/> Importar clientes
+            </button>
+
+            <!-- PROVEEDORES -->
+            <button
+                name="action_import_all_providers"
+                type="object"
+                class="dropdown-item text-warning"
+                invisible="not import_proveedores"
+                confirm="⚠️ Esto importará todos los proveedores. ¿Deseas continuar?">
+                <i class="fa fa-truck me-2"/> Importar proveedores
+            </button>
+
+            <!-- PRODUCTOS -->
+            <button
+                name="action_import_products"
+                type="object"
+                class="dropdown-item text-success"
+                invisible="not import_productos"
+                confirm="⚠️ Esto importará todos los productos. ¿Deseas continuar?">
+                <i class="fa fa-cube me-2"/> Importar productos
+            </button>
+
+
+
+        </div>
+    </div>
+
+
 
 
                 </header>
@@ -205,10 +233,15 @@
                     </group>
 
 
-                    <group string="¿Qué deseas importar?">
+                    <group string="¿Qué deseas importar?" col="4">
+
                         <field name="import_clientes"/>
                         <field name="import_direcciones"/>
                         <field name="import_proveedores"/>
+                        <field name="import_pedidos"/>
+                         <field name="import_productos"/>
+
+
                     </group>
 
                 </sheet>
