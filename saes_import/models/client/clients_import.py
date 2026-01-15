@@ -10,9 +10,9 @@ class SaesClientImporter:
         self.env = config.env
         self.country_map = self._load_country_map()
 
-    # ==========================================================
-    # IMPORT
-    # ==========================================================
+
+    # importar
+
     def import_clients(self, limit=None):
         self._validate_config()
         rows = self._read_clients(limit=limit)
@@ -29,9 +29,9 @@ class SaesClientImporter:
         if not self.config.client_table:
             raise UserError("No hay tabla de clientes seleccionada.")
 
-    # ==========================================================
-    # READ CLIENTS
-    # ==========================================================
+
+    # leer clientes
+
     def _read_clients(self, limit=None):
         detector = self.env["saes.detector"]
         columns = detector.detect_client_columns(
@@ -93,9 +93,9 @@ class SaesClientImporter:
 
         return self.config._execute_sql(query)
 
-    # ==========================================================
-    # MAIN IMPORT LOGIC
-    # ==========================================================
+
+    # lógica del menú de importar
+
     def _import_all_clients_importer(self, row):
         code = self.config._normalize_code(row.get("code"))
         if not code:
@@ -107,9 +107,9 @@ class SaesClientImporter:
 
         partner = self._find_existing_partner(code)
 
-        # -------------------------
-        # COUNTRY
-        # -------------------------
+
+        # contry
+
         phone_code = self._normalize_phone_code(row.get("pais"))
         country = self._find_country_by_phone_code(phone_code)
 
@@ -121,20 +121,20 @@ class SaesClientImporter:
                     limit=1
                 )
 
-        # -------------------------
-        # STATE
-        # -------------------------
+
+        # state
+
         state = self._find_state_by_name(country, row.get("state"))
 
-        # -------------------------
-        # PHONES
-        # -------------------------
+
+        # teléfonos
+
         phone = self._build_international_phone(phone_code, row.get("phone"))
         mobile = self._build_international_phone(phone_code, row.get("mobile"))
 
-        # -------------------------
-        # VAT / AUX ACCOUNT
-        # -------------------------
+
+        # vat / aux_account
+
         vat_to_save = None
         aux_account = None
 
@@ -159,9 +159,9 @@ class SaesClientImporter:
                 except Exception:
                     aux_account = raw_vat
 
-        # -------------------------
-        # VALUES
-        # -------------------------
+
+        # valores
+
         vals = {
             "ref": code,
             "name": full_name,
@@ -185,9 +185,9 @@ class SaesClientImporter:
         else:
             self.env["res.partner"].create(vals)
 
-    # ==========================================================
-    # HELPERS
-    # ==========================================================
+
+    # helpers
+
     def _find_existing_partner(self, code):
         return self.env["res.partner"].search(
             [("ref", "=", code)],
@@ -214,9 +214,9 @@ class SaesClientImporter:
             vat = f"ES{vat}"
         return vat
 
-    # ==========================================================
-    # VAT VALIDATORS (ES)
-    # ==========================================================
+
+    # vat validador (ES)
+
     def _is_nif(self, vat):
         if not vat or len(vat) != 9:
             return False
@@ -264,9 +264,9 @@ class SaesClientImporter:
 
         return control in (str(control_digit), control_letter)
 
-    # ==========================================================
-    # COUNTRY / STATE
-    # ==========================================================
+
+    # contry/statte
+
     def _find_country_by_phone_code(self, phone_code):
         if not phone_code:
             return None
@@ -297,9 +297,9 @@ class SaesClientImporter:
             limit=1
         )
 
-    # ==========================================================
-    # COUNTRY MAP
-    # ==========================================================
+
+    # contry map
+
     def _load_country_map(self):
         path = os.path.abspath(
             os.path.join(

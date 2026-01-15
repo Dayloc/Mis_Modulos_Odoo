@@ -1,0 +1,11 @@
+<odoo>
+    <record id="ir_cron_more_live_update_params" model="ir.cron">
+        <field name="name">More Live - Update Config Params</field>
+        <field name="model_id" ref="model_more_live_config_params"/>
+        <field name="state">code</field>
+        <field name="code">model.update_config_params()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

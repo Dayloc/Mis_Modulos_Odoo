@@ -1,0 +1,33 @@
+<odoo>
+    <record id="view_saes_detected_tables_wizard_form" model="ir.ui.view">
+        <field name="name">saes.detected.tables.wizard.form</field>
+        <field name="model">saes.detected.tables.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Tablas detectadas" class="o_form_large">
+                <sheet>
+
+                    <group colspan="3">
+                        <field name="selected_table_id"
+                               widget="radio"
+                               options="{'horizontal': true}"
+                               domain="[('wizard_id', '=', id)]"/>
+                    </group>
+
+
+                    <separator string="Preview de la tabla"/>
+
+                    <div style="height:360px; overflow-y:auto; margin-top:16px;">
+                        <field name="preview_html" nolabel="1" readonly="1"/>
+                    </div>
+
+                </sheet>
+                <footer>
+                    <button string="Cerrar"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+
+        </field>
+    </record>
+</odoo>
