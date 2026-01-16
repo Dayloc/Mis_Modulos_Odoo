@@ -12,18 +12,11 @@ class MoreLiveConfigParams(models.AbstractModel):
 
         key = "database.create_date"
 
-        # leer valor actual
-        value = icp.get_param(key)
+        # tomar la fecha actual del sistema (servidor)
+        today = fields.Date.today()
 
-        if value:
-            # convertir string a date
-            current_date = fields.Date.from_string(value)
-        else:
-            # Si no existe, usar fecha de hoy
-            current_date = fields.Date.today()
-
-        # sumar 1 día
-        new_date = current_date - timedelta(days=1)
+        # restar 1 día → "ayer"
+        new_date = today - timedelta(days=1)
 
         # guardar como string YYYY-MM-DD
         icp.set_param(key, fields.Date.to_string(new_date))

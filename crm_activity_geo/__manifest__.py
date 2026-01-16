@@ -3,7 +3,7 @@
     "version": "1.0",
     "category": "CRM",
     "summary": "Geolocalización para reuniones de CRM",
-    "author": "DoorCompany",
+    "author": "Dayloc",
     "depends": [
         "crm",
         "mail",
