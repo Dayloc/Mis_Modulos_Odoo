@@ -37,6 +37,7 @@ class Task(models.Model):
     
     def unlink(self):
         """Delete records"""
+        print("Deleting records")
         return super().unlink()
 
     def print_task_report(self):
