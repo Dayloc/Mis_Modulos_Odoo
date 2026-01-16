@@ -1,0 +1,36 @@
+<odoo>
+    <template id="template">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page">
+
+                    <!-- Estilos del PDF -->
+                    <style>
+                        .title {
+                            font-size: 20px;
+                            margin-bottom: 12px;
+                        }
+
+                        .paragraph {
+                            margin-bottom: 8px;
+                            line-height: 1.5;
+                        }
+                    </style>
+
+                    <h1 class="title">
+                        <t t-esc="doc.name"/>
+                    </h1>
+
+                    <p class="paragraph">
+                        <t t-esc="doc.description"/>
+                    </p>
+
+                    <p class="paragraph">
+                        Este es un segundo párrafo de ejemplo para ver el espaciado.
+                    </p>
+
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

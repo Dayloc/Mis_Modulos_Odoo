@@ -8,9 +8,9 @@ import psycopg2
 
 class SaesImportConfig(models.Model, SaesSQLServerMixin):
     _name = "saes.import.config"
-    _description = "Configuración Importador SAE"
+    _description = "Configuración Importador SAGE"
 
-    name = fields.Char(default="Configuración SAE")
+    name = fields.Char(default="Configuración SAGE")
 
     host = fields.Char(required=True)
     port = fields.Integer(default=5432)
@@ -154,7 +154,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         }
 
     # preview de clientes-solo lectura
-    def _preview_clients(self, limit=5):
+    def _preview_clients(self, limit=8):
         self.ensure_one()
 
         if not self.client_table:
@@ -192,17 +192,19 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
     def action_preview_clients(self):
         self.ensure_one()
 
-        rows = self._preview_clients(limit=5)
+        rows = self._preview_clients(limit=15)
         if not rows:
             raise UserError("No hay datos para mostrar.")
 
         # columnas dinámicas (NO hardcodeadas)
-        columns = rows[0].keys()
+        columns = list(rows[0].keys())
 
         html = """
-        <table class="table table-sm table-bordered o_list_view">
-            <thead class="table-info">
-                <tr>
+        <div style="overflow-x:auto; max-width:100%;">
+            <table class="table table-sm table-bordered o_list_view">
+                <thead class="table-info">
+                    <tr>
+                        <th class="text-center">#</th>
         """
 
         for col in columns:
@@ -210,13 +212,18 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
 
         html += "</tr></thead><tbody>"
 
-        for row in rows:
+        for idx, row in enumerate(rows, start=1):
             html += "<tr>"
+            html += f"<td style='text-align:center; font-weight:600;'>{idx}</td>"
             for col in columns:
                 html += f"<td>{row.get(col) or ''}</td>"
             html += "</tr>"
 
-        html += "</tbody></table>"
+        html += """
+                </tbody>
+            </table>
+        </div>
+        """
 
         return {
             "type": "ir.actions.act_window",
@@ -305,7 +312,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         }
 
     # previo de provedores
-    def _preview_providers(self, limit=5):
+    def _preview_providers(self, limit=8):
         self.ensure_one()
 
         if not self.provider_table:
@@ -342,16 +349,19 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
     def action_preview_providers(self):
         self.ensure_one()
 
-        rows = self._preview_providers(limit=5)
+        rows = self._preview_providers(limit=15)
         if not rows:
             raise UserError("No hay datos para mostrar.")
 
-        columns = rows[0].keys()
+        columns = list(rows[0].keys())
 
         html = """
-        <table class="table table-sm table-bordered o_list_view">
-            <thead class="table-primary">
-                <tr>
+        <div style="overflow-x:auto; max-width:100%;">
+            <table class="table table-sm table-bordered o_list_view">
+                <thead class="table-primary">
+                    <tr>
+                        <th 
+                        class="text-center">#</th>
         """
 
         for col in columns:
@@ -359,13 +369,18 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
 
         html += "</tr></thead><tbody>"
 
-        for row in rows:
+        for idx, row in enumerate(rows, start=1):
             html += "<tr>"
+            html += f"<td style='text-align:center; font-weight:600;'>{idx}</td>"
             for col in columns:
                 html += f"<td>{row.get(col) or ''}</td>"
             html += "</tr>"
 
-        html += "</tbody></table>"
+        html += """
+                </tbody>
+            </table>
+        </div>
+        """
 
         return {
             "type": "ir.actions.act_window",
@@ -410,7 +425,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             },
         }
     # acción para el método previo de producto
-    def _preview_products(self, limit=5):
+    def _preview_products(self, limit=8):
         self.ensure_one()
 
         if not self.product_table:
@@ -448,7 +463,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
     def action_preview_products(self):
         self.ensure_one()
 
-        rows = self._preview_products(limit=5)
+        rows = self._preview_products(limit=15)
         if not rows:
             raise UserError("No hay datos para mostrar.")
 
@@ -459,6 +474,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             <table class="table table-sm table-bordered o_list_view">
                 <thead class="table-primary">
                     <tr>
+                        <th class="text-center">#</th>
         """
 
         for col in columns:
@@ -466,8 +482,9 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
 
         html += "</tr></thead><tbody>"
 
-        for row in rows:
+        for idx, row in enumerate(rows, start=1):
             html += "<tr>"
+            html += f"<td style='text-align:center; font-weight:600;'>{idx}</td>"
             for col in columns:
                 val = row.get(col)
                 html += f"<td>{val if val is not None else ''}</td>"
@@ -570,8 +587,6 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             },
         }
 
-
-
     def action_preview_sale_orders(self):
         self.ensure_one()
 
@@ -589,6 +604,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             <table class="table table-sm table-bordered o_list_view">
                 <thead class="table-primary">
                     <tr>
+                        <th>#</th>
         """
 
         for col in columns:
@@ -596,8 +612,9 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
 
         html += "</tr></thead><tbody>"
 
-        for row in rows:
+        for idx, row in enumerate(rows, start=1):
             html += "<tr>"
+            html += f"<td style='text-align:center; font-weight:600;'>{idx}</td>"
             for col in columns:
                 val = row.get(col)
                 html += f"<td>{val if val is not None else ''}</td>"

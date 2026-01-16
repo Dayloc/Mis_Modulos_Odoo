@@ -15,6 +15,11 @@
         'stock',
         "purchase",
     ],
+'assets': {
+    'web.assets_backend': [
+        'saes_import/static/src/css/principal.css',
+    ],
+},
     "data": [
         "security/ir.model.access.csv",
         "views/saes_config_view.xml",

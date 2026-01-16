@@ -1,0 +1,13 @@
+<odoo>
+    <record id="action_reporte_min_pdf" model="ir.actions.report">
+        <field name="name">Reporte Min PDF</field>
+        <field name="model">reporte.min</field>
+        <field name="report_type">qweb-pdf</field>
+
+        <field name="report_name">reporte_min.template</field>
+        <field name="report_file">reporte_min.template</field>
+
+        <field name="binding_model_id" ref="model_reporte_min"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

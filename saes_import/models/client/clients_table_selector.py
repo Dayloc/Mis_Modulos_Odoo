@@ -72,7 +72,7 @@ class SaesTableSelector(models.TransientModel):
         if not rows:
             raise UserError("No hay datos para mostrar.")
 
-        # solo primeras 6 columnas
+        # solo primeras 10 columnas
         preview_cols = cols[:10]
 
         html = """
@@ -80,6 +80,7 @@ class SaesTableSelector(models.TransientModel):
             <table class="table table-sm table-bordered o_list_view">
                 <thead class="table-info">
                     <tr>
+                        <th>#</th>
         """
 
         for col in preview_cols:
@@ -87,9 +88,10 @@ class SaesTableSelector(models.TransientModel):
 
         html += "</tr></thead><tbody>"
 
-        for row in rows:
+        for idx, row in enumerate(rows, start=1):
             row_dict = dict(zip(cols, row))
             html += "<tr>"
+            html += f"<td style='text-align:center; font-weight:600;color:red'>{idx}</td>"
             for col in preview_cols:
                 val = row_dict.get(col)
                 html += f"<td>{val if val is not None else ''}</td>"
@@ -111,5 +113,6 @@ class SaesTableSelector(models.TransientModel):
                 "preview_html": html,
             },
         }
+
 
 
