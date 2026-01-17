@@ -3,7 +3,7 @@
         <field name="name">saes.import.config.form</field>
         <field name="model">saes.import.config</field>
         <field name="arch" type="xml">
-            <form string="Configuración Importador SAGES" >
+            <form string="Configuración Importador SAGES">
 
                 <header>
                     <button name="action_detect_tables"
@@ -126,6 +126,64 @@
 
                         </div>
                     </div>
+                    <div class="o_dropdown">
+                        <a class="btn btn-secondary o_dropdown_toggle"
+                           data-bs-toggle="dropdown"
+                           role="button">
+                            <i class="fa fa-list me-1"/>
+                            Líneas de pedido
+                        </a>
+
+                        <div class="dropdown-menu">
+
+                            <button name="action_detect_sale_order_line_tables"
+                                    type="object"
+                                    string="Detectar tablas candidatas"
+                                    icon="fa-search"
+                                    class="dropdown-item"/>
+
+                            <button name="action_choose_sale_order_line_table"
+                                    type="object"
+                                    string="Elegir tabla de líneas"
+                                    icon="fa-table"
+                                    class="dropdown-item"/>
+
+                            <button name="action_preview_sale_order_lines"
+                                    type="object"
+                                    string="Preview líneas (lectura)"
+                                    icon="fa-eye"
+                                    class="dropdown-item"/>
+
+
+                        </div>
+                    </div>
+                    <div class="o_dropdown">
+                        <a class="btn btn-secondary o_dropdown_toggle"
+                           data-bs-toggle="dropdown"
+                           role="button">
+                            <i class="fa fa-file-invoice me-1"/>
+                            Facturas
+                        </a>
+                        <div class="dropdown-menu">
+                            <button name="action_detect_invoice_tables"
+                                    type="object"
+                                    string="Detectar tablas candidatas"
+                                    icon="fa-search"
+                                    class="dropdown-item"/>
+
+                            <button name="action_choose_invoice_table"
+                                    type="object"
+                                    string="Elegir tabla de facturas"
+                                    icon="fa-table"
+                                    class="dropdown-item"/>
+
+                            <button name="action_preview_invoices"
+                                    type="object"
+                                    string="Preview facturas (lectura)"
+                                    icon="fa-eye"
+                                    class="dropdown-item"/>
+                        </div>
+                    </div>
 
 
                     <div class="o_dropdown">
@@ -175,7 +233,7 @@
 
                 </header>
 
-                 <sheet>
+                <sheet>
                     <group col="2">
                         <group string="Origen de datos">
                             <field name="db_type" widget="radio"/>
@@ -209,6 +267,7 @@
                             <field name="provider_table" readonly="1" class="text-primary"/>
                             <field name="product_table" readonly="1" class="text-primary"/>
                             <field name="sale_order_table" readonly="1" class="text-primary"/>
+                            <field name="sale_order_line_table" readonly="1" class="text-primary"/>
                         </group>
                         <group string="¿Qué deseas importar?">
                             <field name="import_clientes"/>
@@ -239,6 +298,7 @@
                 <field name="import_clientes"/>
                 <field name="import_direcciones"/>
                 <field name="import_proveedores"/>
+
             </list>
         </field>
     </record>

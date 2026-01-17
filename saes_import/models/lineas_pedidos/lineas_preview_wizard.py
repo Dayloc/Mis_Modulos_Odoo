@@ -1,8 +1,8 @@
-from odoo import models, fields,api
+from odoo import models, fields, api
 
-class SaesClientPreviewWizard(models.TransientModel):
-    _name = "saes.client.preview.wizard"
-    _description = "Preview de clientes SAGE"
+class SaesSaleOrderLinePreviewWizard(models.TransientModel):
+    _name = "saes.sale.order.line.preview.wizard"
+    _description = "Preview líneas de pedido"
 
     preview_html = fields.Html(readonly=True)
 

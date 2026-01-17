@@ -198,7 +198,7 @@ class SaesDetector(models.AbstractModel):
 
         return mapping
 
-    # detector tabla productos
+    # detectar tabla productos
     def detect_product_tables(self, config):
         tables = self.detect_tables(config)
 
@@ -262,7 +262,7 @@ class SaesDetector(models.AbstractModel):
 
         return mapping
 
-    # detector tablas de pedidos
+    # detectar tablas de pedidos
     def detect_sale_order_tables(self, config):
 
         tables = self.detect_tables(config)
@@ -382,12 +382,158 @@ class SaesDetector(models.AbstractModel):
                     break
 
         return mapping
-
-
-    # importaciones
     # normalizar país con code
     def _normalize_code(self, value):
         return value.strip().upper() if value else None
 
+    #detectar tablas de líneas
+    def detect_sale_order_line_tables(self, config):
+        tables = self.detect_tables(config)
 
+        # keywords fuertes de líneas
+        keywords = [
+            # genérico
+            "linea", "lineas",
+            "detalle", "det", "detal",
+            "item", "items",
+            "row", "rows",
+            "pos", "position",
 
+            # pedidos
+            "pedido_linea", "pedido_det", "pedido_lin",
+            "ped_lin", "ped_line", "ped_det",
+            "order_line", "order_lines",
+            "sale_order_line", "sales_order_line",
+            "so_line", "so_lines",
+
+            # legacy / español
+            "renglon", "renglones",
+            "concepto", "conceptos",
+        ]
+
+        # blacklist MUY importante
+        blacklist = [
+            # cabeceras
+            "cab", "header", "head",
+            "maestro", "master",
+
+            # otros documentos
+            "fact", "invoice",
+            "albaran", "delivery",
+            "compra", "purchase",
+
+            # stock / contabilidad
+            "stock", "mov", "movim",
+            "almacen", "warehouse",
+            "contab", "iva", "impuesto",
+
+            # claramente NO líneas
+            "cliente", "proveedor",
+            "producto", "articulo",
+            "precio", "tarifa",
+            "tmp", "temp", "log", "hist",
+        ]
+
+        candidates = []
+
+        for table in tables:
+            t = table.lower()
+
+            # debe contener keyword de líneas
+            if not any(k in t for k in keywords):
+                continue
+
+            #  NO debe caer en blacklist
+            if any(b in t for b in blacklist):
+                continue
+
+            # opcional: debe tener datos
+            if hasattr(self, "_table_has_data"):
+                if not self._table_has_data(config, table):
+                    continue
+
+            candidates.append(table)
+
+        return sorted(set(candidates))
+
+    #invoice
+    def detect_invoice_tables(self, config):
+        tables = self.detect_tables(config)
+
+        keywords = [
+            # español claro
+            "factura", "facturas",
+            "fact_venta", "fact_ven", "fac_ven", "facv",
+            "factcli", "fact_cli", "fact_cliente",
+
+            # inglés
+            "invoice", "invoices",
+            "sales_invoice", "sale_invoice",
+            "customer_invoice", "cust_invoice",
+
+            # abreviaturas ERP
+            "fac", "faccab", "fac_cab",
+            "fcab", "fcabecera",
+            "inv", "inv_hdr", "inv_header",
+
+            # documentos
+            "doc_fact", "docfac", "documento_factura",
+        ]
+
+        blacklist = [
+            "line", "detalle",
+            "pedido", "order",
+            "tmp", "hist", "log",
+        ]
+
+        candidates = []
+
+        for table in tables:
+            t = table.lower()
+
+            if not any(k in t for k in keywords):
+                continue
+            if any(b in t for b in blacklist):
+                continue
+
+            candidates.append(table)
+
+        return sorted(set(candidates))
+    def detect_invoice_columns(self, config, table):
+        conn = config._get_connection()
+        try:
+            cur = conn.cursor()
+
+            if config.db_type == "postgres":
+                cur.execute(f'SELECT * FROM "{table}" LIMIT 1')
+            else:
+                cur.execute(f"SELECT TOP 1 * FROM [{table}]")
+
+            columns = [c[0].lower() for c in cur.description]
+        finally:
+            conn.close()
+
+        def find(*keys):
+            for col in columns:
+                for key in keys:
+                    if key in col:
+                        return col
+            return None
+
+        return {
+            # identificadores
+            "number": find("num", "number", "factura", "invoice", "doc"),
+            "date": find("fecha", "date", "data", "dt"),
+            "customer_code": find("cliente", "customer", "codcli", "idcli"),
+            "customer_name": find("nombre", "name", "cliente"),
+
+            # importes
+            "amount_untaxed": find("base", "subtotal", "neto"),
+            "amount_tax": find("iva", "tax", "impuesto"),
+            "amount_total": find("total", "importe"),
+
+            # estado / referencia
+            "state": find("estado", "status"),
+            "currency": find("moneda", "currency"),
+            "origin": find("pedido", "order", "origen", "ref"),
+        }

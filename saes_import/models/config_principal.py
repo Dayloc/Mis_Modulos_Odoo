@@ -23,6 +23,8 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
     import_proveedores = fields.Boolean()
     import_pedidos = fields.Boolean()
     import_productos = fields.Boolean()
+    import_sale_order_lines = fields.Boolean()
+    import_invoices = fields.Boolean()
 
     db_type = fields.Selection(
         [("postgres", "PostgreSQL"), ("sqlserver", "SQL Server")],
@@ -34,6 +36,8 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
     provider_table = fields.Char(readonly=True)
     product_table = fields.Char(readonly=True)
     sale_order_table = fields.Char(readonly=True)
+    sale_order_line_table = fields.Char(readonly=True)
+    invoice_table = fields.Char(readonly=True)
 
     # conexión para ambos sql sever/ posgres
 
@@ -115,10 +119,12 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             raise UserError("No se detectaron tablas candidatas a clientes.")
 
         Option = self.env["saes.client.table.option"]
-        Option.search([]).unlink()  # limpiamos anteriores
+        Option.search([]).unlink()  # 🔥 solo clientes
 
         for t in tables:
-            Option.create({"name": t})
+            Option.create({
+                "name": t,
+            })
 
         return {
             "type": "ir.actions.act_window",
@@ -798,3 +804,276 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
                 "type": "success",
             },
         }
+
+    # metodo para detectar tablas de líneas
+    def action_detect_sale_order_line_tables(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_sale_order_line_tables(self)
+
+        if not tables:
+            raise UserError("No se detectaron tablas candidatas a líneas de pedido.")
+
+        wizard = self.env["saes.detected.tables.wizard"].create({})
+
+        for t in tables:
+            self.env["saes.detected.table"].create({
+                "name": t,
+                "wizard_id": wizard.id,
+            })
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Tablas candidatas a líneas de pedido",
+            "res_model": "saes.detected.tables.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "res_id": wizard.id,
+        }
+
+    def action_choose_sale_order_line_table(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_sale_order_line_tables(self)
+        if not tables:
+            raise UserError("No se detectaron tablas de líneas de pedido.")
+
+        Option = self.env["sale.order.line.table.option"]
+
+        Option.search([
+            ("config_id", "=", self.id)
+        ]).unlink()
+
+        for t in tables:
+            Option.create({
+                "name": t,
+                "config_id": self.id,
+            })
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Elegir tabla de líneas de pedido",
+            "res_model": "sale.order.line.table.selector",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "active_id": self.id,
+            },
+        }
+
+    def action_preview_sale_order_lines(self):
+        self.ensure_one()
+
+        rows = self._preview_sale_order_lines(limit=15)
+        if not rows:
+            raise UserError("No hay datos para mostrar.")
+
+        columns = list(rows[0].keys())
+
+        html = """
+        <div style="overflow-x:auto; max-width:100%;">
+            <table class="table table-sm table-bordered o_list_view">
+                <thead class="table-info">
+                    <tr>
+                        <th class="text-center">#</th>
+        """
+
+        for col in columns:
+            html += f"<th>{col.upper()}</th>"
+
+        html += "</tr></thead><tbody>"
+
+        for idx, row in enumerate(rows, start=1):
+            html += "<tr>"
+            html += f"<td style='text-align:center; font-weight:600;'>{idx}</td>"
+            for col in columns:
+                html += f"<td>{row.get(col) or ''}</td>"
+            html += "</tr>"
+
+        html += "</tbody></table></div>"
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Preview líneas de pedido",
+            "res_model": "saes.sale.order.line.preview.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "preview_html": html,
+            },
+        }
+
+    def _preview_sale_order_lines(self, limit=15):
+        self.ensure_one()
+
+        if not self.sale_order_line_table:
+            raise UserError("No hay tabla de líneas seleccionada.")
+
+        if self.db_type == "postgres":
+            query = f"""
+                SELECT *
+                FROM {self.sale_order_line_table}
+                LIMIT {limit}
+            """
+        else:
+            query = f"""
+                SELECT TOP {limit} *
+                FROM {self.sale_order_line_table}
+            """
+
+        return self._execute_sql(query)
+
+    # invoice (facturas)
+    def action_detect_invoice_tables(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_invoice_tables(self)
+        if not tables:
+            raise UserError("No se detectaron tablas de facturas.")
+
+        wizard = self.env["saes.detected.tables.wizard"].create({})
+
+        for t in tables:
+            self.env["saes.detected.table"].create({
+                "name": t,
+                "wizard_id": wizard.id,
+            })
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Tablas candidatas a facturas",
+            "res_model": "saes.detected.tables.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "res_id": wizard.id,
+        }
+
+    def action_choose_invoice_table(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_invoice_tables(self)
+        if not tables:
+            raise UserError("No se detectaron tablas de facturas.")
+
+        Option = self.env["saes.invoice.table.option"]
+        Option.search([("config_id", "=", self.id)]).unlink()
+
+        for t in tables:
+            Option.create({
+                "name": t,
+                "config_id": self.id,
+            })
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Elegir tabla de facturas",
+            "res_model": "saes.invoice.table.selector",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "active_id": self.id,
+            },
+        }
+
+    def _preview_invoices(self, limit=10):
+        self.ensure_one()
+
+        if not self.invoice_table:
+            raise UserError("No hay tabla de facturas seleccionada.")
+
+        detector = self.env["saes.detector"]
+        columns = detector.detect_invoice_columns(self, self.invoice_table)
+
+        sql_cols = []
+        for key, col in columns.items():
+            if not col:
+                continue
+
+            if self.db_type == "postgres":
+                sql_cols.append(f'"{col}" AS {key}')
+            else:
+                sql_cols.append(f'[{col}] AS {key}')
+
+        if not sql_cols:
+            raise UserError("No se detectaron columnas válidas de facturas.")
+
+        if self.db_type == "postgres":
+            query = f"""
+                SELECT {', '.join(sql_cols)}
+                FROM {self.invoice_table}
+                LIMIT {limit}
+            """
+        else:
+            query = f"""
+                SELECT TOP {limit} {', '.join(sql_cols)}
+                FROM {self.invoice_table}
+            """
+
+        return self._execute_sql(query)
+
+    def action_preview_invoices(self):
+        self.ensure_one()
+
+        rows = self._preview_invoices(limit=15)
+        if not rows:
+            raise UserError("No hay datos para mostrar.")
+
+        # columnas dinámicas
+        columns = list(rows[0].keys())
+
+        html = """
+        <div style="overflow-x:auto; max-width:100%;">
+            <table class="table table-sm table-bordered o_list_view">
+                <thead class="table-primary">
+                    <tr>
+                        <th style="width:40px; text-align:center;">#</th>
+        """
+
+        for col in columns:
+            html += f"<th>{col.upper()}</th>"
+
+        html += "</tr></thead><tbody>"
+
+        for idx, row in enumerate(rows, start=1):
+            html += "<tr>"
+            html += (
+                "<td style='width:40px; text-align:center; font-weight:600;'>"
+                f"{idx}</td>"
+            )
+            for col in columns:
+                html += f"<td>{row.get(col) or ''}</td>"
+            html += "</tr>"
+
+        html += """
+                </tbody>
+            </table>
+        </div>
+        """
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Preview facturas",
+            "res_model": "saes.invoice.preview.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "preview_html": html
+            },
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

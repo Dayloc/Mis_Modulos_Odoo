@@ -4,9 +4,9 @@
     "category": "Tools",
     "summary": "Importación de datos desde SAGE hacia Odoo",
     "description": """
-                                                         Módulo para importar datos desde SAGES (clientes, direcciones, proveedores,pedidos,facturas)
-                                                         de forma parametrizable y controlada.
-                                                             """,
+                                                                            Módulo para importar datos desde SAGES (clientes, direcciones, proveedores,pedidos,facturas)
+                                                                            de forma parametrizable y controlada.
+                                                                                """,
     "author": "Dayloc",
     "depends": [
         "base",
@@ -15,11 +15,11 @@
         'stock',
         "purchase",
     ],
-'assets': {
-    'web.assets_backend': [
-        'saes_import/static/src/css/principal.css',
-    ],
-},
+    'assets': {
+        'web.assets_backend': [
+            'saes_import/static/src/css/principal.css',
+        ],
+    },
     "data": [
         "security/ir.model.access.csv",
         "views/saes_config_view.xml",
@@ -29,10 +29,14 @@
         "wizard_views/clients_table_preview_wizard.xml",
         "wizard_views/detected_all_tables_wizard.xml",
         "views/provider_table_selector.xml",
+        "views/sale_order_line_table_selector_view.xml",
+        "views/invoice_table_selector.xml",
         "views/product_table_selector_view.xml",
         "views/sale_order_table_selector_view.xml",
         "wizard_views/wizard_preview_provider_view.xml",
         "wizard_views/product_preview_wizard.xml",
+        "wizard_views/sale_order_line_preview_wizard.xml",
+        "wizard_views/invoice_preview_wizard.xml",
 
     ],
     "installable": True,
