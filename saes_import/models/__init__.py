@@ -11,5 +11,6 @@ from .products import product_table_option,product_table_selector,product_import
 from .pedidos import sale_order_table_selector,sale_order_table_option,sale_order_preview_wizard
 from .lineas_pedidos import lineas_table_option,lineas_table_selector,lineas_preview_wizard
 from .facturas import invoice_table_option,invoice_table_selector,invoice_preview_wizard
+from .import lineas_facturas
 
 

@@ -580,3 +580,100 @@ class SaesDetector(models.AbstractModel):
             "currency": find("moneda", "currency"),
             "origin": find("pedido", "order", "origen", "ref"),
         }
+    # detectar lineas de facturas(venta)
+    def detect_sale_invoice_line_tables(self, config):
+        tables = self.detect_tables(config)
+
+        keywords = [
+            # genérico
+            "line", "linea", "lineas",
+            "detalle", "det", "renglon", "item",
+
+            # facturas venta
+            "fac_lin", "fact_lin", "facven_lin",
+            "invoice_line", "invoice_lines",
+            "sales_invoice_line", "sale_invoice_line",
+            "inv_line", "invlin",
+        ]
+
+        blacklist = [
+            # cabeceras
+            "cab", "header", "head", "master",
+
+            # pedidos
+            "pedido", "order",
+
+            # compras
+            "purchase", "compra", "prov",
+
+            # stock / contabilidad
+            "stock", "mov", "almacen", "warehouse",
+
+            # basura
+            "tmp", "temp", "log", "hist",
+        ]
+
+        candidates = []
+
+        for table in tables:
+            t = table.lower()
+
+            if not any(k in t for k in keywords):
+                continue
+            if any(b in t for b in blacklist):
+                continue
+
+            candidates.append(table)
+
+        return sorted(set(candidates))
+    # detectar lineas de facturas(compra)
+    def detect_purchase_invoice_line_tables(self, config):
+        tables = self.detect_tables(config)
+
+        keywords = [
+            # genérico
+            "line", "linea", "lineas",
+            "detalle", "det", "renglon", "item",
+
+            # facturas compra
+            "faccom_lin", "factcom_lin",
+            "purchase_invoice_line",
+            "supplier_invoice_line",
+            "inv_purchase_line",
+            "prov_fac_lin",
+        ]
+
+        blacklist = [
+            # cabeceras
+            "cab", "header", "head", "master",
+
+            # ventas
+            "sale", "venta", "cliente",
+
+            # pedidos
+            "pedido", "order",
+
+            # stock / contabilidad
+            "stock", "mov", "almacen", "warehouse",
+
+            # basura
+            "tmp", "temp", "log", "hist",
+        ]
+
+        candidates = []
+
+        for table in tables:
+            t = table.lower()
+
+            if not any(k in t for k in keywords):
+                continue
+            if any(b in t for b in blacklist):
+                continue
+
+            candidates.append(table)
+
+        return sorted(set(candidates))
+
+
+
+
