@@ -25,6 +25,8 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
     import_productos = fields.Boolean()
     import_sale_order_lines = fields.Boolean()
     import_invoices = fields.Boolean()
+    import_sale_invoice=fields.Boolean()
+    import_purchase_invoice=fields.Boolean()
 
     db_type = fields.Selection(
         [("postgres", "PostgreSQL"), ("sqlserver", "SQL Server")],
@@ -37,7 +39,8 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
     product_table = fields.Char(readonly=True)
     sale_order_table = fields.Char(readonly=True)
     sale_order_line_table = fields.Char(readonly=True)
-    invoice_table = fields.Char(readonly=True)
+    sale_invoice_table = fields.Char(readonly=True)
+    purchase_invoice_table = fields.Char(readonly=True)
 
     # conexión para ambos sql sever/ posgres
 
@@ -924,12 +927,12 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         return self._execute_sql(query)
 
     # invoice (facturas)
-    def action_detect_invoice_tables(self):
+    def action_detect_sale_invoice_tables(self):
         self.ensure_one()
 
-        tables = self.env["saes.detector"].detect_invoice_tables(self)
+        tables = self.env["saes.detector"].detect_sale_invoice_tables(self)
         if not tables:
-            raise UserError("No se detectaron tablas de facturas.")
+            raise UserError("No se detectaron tablas de facturas de venta.")
 
         wizard = self.env["saes.detected.tables.wizard"].create({})
 
@@ -941,48 +944,119 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
 
         return {
             "type": "ir.actions.act_window",
-            "name": "Tablas candidatas a facturas",
+            "name": "Facturas de venta",
             "res_model": "saes.detected.tables.wizard",
             "view_mode": "form",
             "target": "new",
             "res_id": wizard.id,
+            "context": {
+                "active_id": self.id,
+                "invoice_type": "sale",
+            },
         }
 
-    def action_choose_invoice_table(self):
+    def action_detect_purchase_invoice_tables(self):
         self.ensure_one()
 
-        tables = self.env["saes.detector"].detect_invoice_tables(self)
+        tables = self.env["saes.detector"].detect_purchase_invoice_tables(self)
         if not tables:
-            raise UserError("No se detectaron tablas de facturas.")
+            raise UserError("No se detectaron tablas de facturas de compra.")
 
-        Option = self.env["saes.invoice.table.option"]
-        Option.search([("config_id", "=", self.id)]).unlink()
+        wizard = self.env["saes.detected.tables.wizard"].create({})
 
         for t in tables:
-            Option.create({
+            self.env["saes.detected.table"].create({
                 "name": t,
-                "config_id": self.id,
+                "wizard_id": wizard.id,
             })
 
         return {
             "type": "ir.actions.act_window",
-            "name": "Elegir tabla de facturas",
+            "name": "Facturas de compra",
+            "res_model": "saes.detected.tables.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "res_id": wizard.id,
+            "context": {
+                "active_id": self.id,
+                "invoice_type": "purchase",
+            },
+        }
+
+    #seleccion facturas de ventas
+    def action_choose_sale_invoice_table(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_sale_invoice_tables(self)
+        if not tables:
+            raise UserError("No se detectaron tablas de facturas de venta.")
+
+        Option = self.env["saes.invoice.table.option"]
+        Option.search([]).unlink()
+
+        for t in tables:
+            Option.create({"name": t})
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Elegir tabla de facturas de venta",
             "res_model": "saes.invoice.table.selector",
             "view_mode": "form",
             "target": "new",
             "context": {
                 "active_id": self.id,
+                "invoice_type": "sale",
+            },
+        }
+    # selecciónn de facturas de compra
+    def action_choose_purchase_invoice_table(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_purchase_invoice_tables(self)
+        if not tables:
+            raise UserError("No se detectaron tablas de facturas de compra.")
+
+        Option = self.env["saes.invoice.table.option"]
+        Option.search([]).unlink()
+
+        for t in tables:
+            Option.create({"name": t})
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Elegir tabla de facturas de compra",
+            "res_model": "saes.invoice.table.selector",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "active_id": self.id,
+                "invoice_type": "purchase",
             },
         }
 
-    def _preview_invoices(self, limit=10):
+    def action_preview_sale_invoices(self):
+        self = self.with_context(invoice_type="sale")
+        return self.action_preview_invoices()
+
+    def action_preview_purchase_invoices(self):
+        self = self.with_context(invoice_type="purchase")
+        return self.action_preview_invoices()
+
+    def _preview_invoices(self, limit=10, invoice_type=None):
         self.ensure_one()
 
-        if not self.invoice_table:
+        if invoice_type == "sale":
+            table = self.sale_invoice_table
+        elif invoice_type == "purchase":
+            table = self.purchase_invoice_table
+        else:
+            raise UserError("Tipo de factura no válido.")
+
+        if not table:
             raise UserError("No hay tabla de facturas seleccionada.")
 
         detector = self.env["saes.detector"]
-        columns = detector.detect_invoice_columns(self, self.invoice_table)
+        columns = detector.detect_invoice_columns(self, table)
 
         sql_cols = []
         for key, col in columns.items():
@@ -1000,13 +1074,13 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
         if self.db_type == "postgres":
             query = f"""
                 SELECT {', '.join(sql_cols)}
-                FROM {self.invoice_table}
+                FROM {table}
                 LIMIT {limit}
             """
         else:
             query = f"""
                 SELECT TOP {limit} {', '.join(sql_cols)}
-                FROM {self.invoice_table}
+                FROM {table}
             """
 
         return self._execute_sql(query)
@@ -1014,11 +1088,14 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
     def action_preview_invoices(self):
         self.ensure_one()
 
-        rows = self._preview_invoices(limit=15)
+        invoice_type = self.env.context.get("invoice_type")
+        if not invoice_type:
+            raise UserError("Tipo de factura no definido en el contexto.")
+
+        rows = self._preview_invoices(limit=15, invoice_type=invoice_type)
         if not rows:
             raise UserError("No hay datos para mostrar.")
 
-        # columnas dinámicas
         columns = list(rows[0].keys())
 
         html = """
@@ -1057,9 +1134,12 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             "view_mode": "form",
             "target": "new",
             "context": {
-                "preview_html": html
+                "preview_html": html,
+                "invoice_type": invoice_type,
             },
         }
+
+
 
 
 

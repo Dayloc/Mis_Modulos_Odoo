@@ -24,11 +24,17 @@ class SaesInvoiceTableSelector(models.TransientModel):
         config = self.env["saes.import.config"].browse(
             self.env.context.get("active_id")
         )
-
         if not config.exists():
-            raise UserError("No se encontró la configuración activa.")
+            raise UserError("No hay configuración activa.")
 
-        config.invoice_table = self.table_id.name
+        invoice_type = self.env.context.get("invoice_type")
+
+        if invoice_type == "sale":
+            config.sale_invoice_table = self.table_id.name
+        elif invoice_type == "purchase":
+            config.purchase_invoice_table = self.table_id.name
+        else:
+            raise UserError("Tipo de factura no definido.")
 
         return {"type": "ir.actions.act_window_close"}
 
@@ -80,7 +86,7 @@ class SaesInvoiceTableSelector(models.TransientModel):
             <table class="table table-sm table-bordered o_list_view">
                 <thead class="table-info">
                     <tr>
-                        <th>#</th>
+                        <th class="text-center">#</th>
         """
 
         for col in preview_cols:

@@ -385,7 +385,6 @@ class SaesDetector(models.AbstractModel):
     # normalizar país con code
     def _normalize_code(self, value):
         return value.strip().upper() if value else None
-
     #detectar tablas de líneas
     def detect_sale_order_line_tables(self, config):
         tables = self.detect_tables(config)
@@ -456,34 +455,35 @@ class SaesDetector(models.AbstractModel):
 
         return sorted(set(candidates))
 
-    #invoice
-    def detect_invoice_tables(self, config):
+    # detectar tablas facturas de venta
+    def detect_sale_invoice_tables(self, config):
         tables = self.detect_tables(config)
 
         keywords = [
-            # español claro
-            "factura", "facturas",
-            "fact_venta", "fact_ven", "fac_ven", "facv",
-            "factcli", "fact_cli", "fact_cliente",
+            # español
+            "fact", "factura", "facturas",
+            "fac_ven", "fact_ven", "factv",
+            "c_fact", "c_factven",
 
             # inglés
             "invoice", "invoices",
             "sales_invoice", "sale_invoice",
-            "customer_invoice", "cust_invoice",
+            "inv_sale",
 
-            # abreviaturas ERP
-            "fac", "faccab", "fac_cab",
-            "fcab", "fcabecera",
-            "inv", "inv_hdr", "inv_header",
-
-            # documentos
-            "doc_fact", "docfac", "documento_factura",
+            # sage / legacy
+            "c_factura", "c_factven",
+            "sn_facven", "sn_factven",
         ]
 
         blacklist = [
-            "line", "detalle",
-            "pedido", "order",
-            "tmp", "hist", "log",
+            # líneas
+            "line", "linea", "detalle",
+
+            # compras
+            "compra", "purchase", "prov",
+
+            # basura
+            "tmp", "temp", "hist", "log",
         ]
 
         candidates = []
@@ -499,6 +499,49 @@ class SaesDetector(models.AbstractModel):
             candidates.append(table)
 
         return sorted(set(candidates))
+    # detectar tablas facturas de compras
+    def detect_purchase_invoice_tables(self, config):
+        tables = self.detect_tables(config)
+
+        keywords = [
+            # español
+            "fact", "factura", "facturas",
+            "fac_com", "fact_com",
+
+            # inglés
+            "purchase_invoice", "supplier_invoice",
+            "invoice_purchase",
+
+            # sage / legacy
+            "sn_faccom", "sn_factcom",
+            "p_fact", "prov_fact",
+        ]
+
+        blacklist = [
+            # líneas
+            "line", "linea", "detalle",
+
+            # ventas
+            "venta", "sale", "cliente",
+
+            # basura
+            "tmp", "temp", "hist", "log",
+        ]
+
+        candidates = []
+
+        for table in tables:
+            t = table.lower()
+
+            if not any(k in t for k in keywords):
+                continue
+            if any(b in t for b in blacklist):
+                continue
+
+            candidates.append(table)
+
+        return sorted(set(candidates))
+
     def detect_invoice_columns(self, config, table):
         conn = config._get_connection()
         try:

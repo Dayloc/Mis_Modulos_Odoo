@@ -127,7 +127,8 @@
                         </div>
                     </div>
                     <div class="o_dropdown">
-                        <a class="btn btn-secondary o_dropdown_toggle"
+                        <a class="btn   o_dropdown_toggle"
+                           style="background: #2e2e56"
                            data-bs-toggle="dropdown"
                            role="button">
                             <i class="fa fa-list me-1"/>
@@ -157,31 +158,67 @@
 
                         </div>
                     </div>
-                    <div class="o_dropdown">
-                        <a class="btn btn-secondary o_dropdown_toggle"
+                    <div class="o_dropdown dropdown">
+                        <a class="btn o_dropdown_toggle"
+                           style="background: #0a3622"
                            data-bs-toggle="dropdown"
                            role="button">
-                            <i class="fa fa-file-invoice me-1"/>
+                            <i class="fa fa-file me-1"/>
                             Facturas
                         </a>
-                        <div class="dropdown-menu">
-                            <button name="action_detect_invoice_tables"
-                                    type="object"
-                                    string="Detectar tablas candidatas"
-                                    icon="fa-search"
-                                    class="dropdown-item"/>
 
-                            <button name="action_choose_invoice_table"
-                                    type="object"
-                                    string="Elegir tabla de facturas"
-                                    icon="fa-table"
-                                    class="dropdown-item"/>
+                        <div class="dropdown-menu p-0">
 
-                            <button name="action_preview_invoices"
+
+                            <div class="dropdown-header text-dark fw-bold "
+                                 style="background: #0b7b6c">
+                                <i class="fa fa-arrow-up me-1"/> Facturas de venta
+                            </div>
+
+                            <button name="action_detect_sale_invoice_tables"
                                     type="object"
-                                    string="Preview facturas (lectura)"
-                                    icon="fa-eye"
-                                    class="dropdown-item"/>
+                                    class="dropdown-item">
+                                <i class="fa fa-search me-1"/> Detectar tablas
+                            </button>
+
+                            <button name="action_choose_sale_invoice_table"
+                                    type="object"
+                                    class="dropdown-item">
+                                <i class="fa fa-table me-1"/> Elegir tabla
+                            </button>
+
+                            <button name="action_preview_sale_invoices"
+                                    type="object"
+                                    class="dropdown-item">
+                                <i class="fa fa-eye me-1"/> Preview
+                            </button>
+
+                            <div class="dropdown-divider"></div>
+
+
+                            <div class="dropdown-header text-success fw-bold"
+                                 style="background: #5b5b66">
+                                <i class="fa fa-arrow-down me-1"/> Facturas de compra
+                            </div>
+
+                            <button name="action_detect_purchase_invoice_tables"
+                                    type="object"
+                                    class="dropdown-item">
+                                <i class="fa fa-search me-1"/> Detectar tablas
+                            </button>
+
+                            <button name="action_choose_purchase_invoice_table"
+                                    type="object"
+                                    class="dropdown-item">
+                                <i class="fa fa-table me-1"/> Elegir tabla
+                            </button>
+
+                            <button name="action_preview_purchase_invoices"
+                                    type="object"
+                                    class="dropdown-item">
+                                <i class="fa fa-eye me-1"/> Preview
+                            </button>
+
                         </div>
                     </div>
 
@@ -268,6 +305,9 @@
                             <field name="product_table" readonly="1" class="text-primary"/>
                             <field name="sale_order_table" readonly="1" class="text-primary"/>
                             <field name="sale_order_line_table" readonly="1" class="text-primary"/>
+                            <field name="sale_invoice_table" readonly="1" class="text-primary"/>
+                            <field name="purchase_invoice_table" readonly="1" class="text-primary"/>
+
                         </group>
                         <group string="¿Qué deseas importar?">
                             <field name="import_clientes"/>
@@ -275,6 +315,8 @@
                             <field name="import_proveedores"/>
                             <field name="import_pedidos"/>
                             <field name="import_productos"/>
+                            <field name="import_sale_invoice"/>
+                            <field name="import_purchase_invoice"/>
                         </group>
                     </group>
 
