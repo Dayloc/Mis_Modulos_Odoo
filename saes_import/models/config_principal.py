@@ -1170,12 +1170,58 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             },
         }
     # lineas_facturas(compra)
-    def action_detect_purchase_invoice_line_tables(self):
+    def action_choose_purchase_invoice_line_table(self):
         self.ensure_one()
 
         tables = self.env["saes.detector"].detect_purchase_invoice_line_tables(self)
         if not tables:
             raise UserError("No se detectaron tablas de líneas de facturas de compra.")
+
+        Option = self.env["saes.purchase.invoice.line.table.option"]
+        Option.search([]).unlink()
+
+        for t in tables:
+            Option.create({"name": t})
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Elegir tabla líneas facturas de compra",
+            "res_model": "saes.purchase.invoice.line.table.selector",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"active_id": self.id},
+        }
+
+    def action_choose_sale_invoice_line_table(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_sale_invoice_line_tables(self)
+        if not tables:
+            raise UserError("No se detectaron tablas de líneas de facturas de venta.")
+
+        Option = self.env["saes.sale.invoice.line.table.option"]
+        Option.search([]).unlink()
+
+        for t in tables:
+            Option.create({"name": t})
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Elegir tabla líneas facturas de venta",
+            "res_model": "saes.sale.invoice.line.table.selector",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"active_id": self.id},
+        }
+
+    def action_detect_purchase_invoice_line_tables(self):
+        self.ensure_one()
+
+        tables = self.env["saes.detector"].detect_purchase_invoice_line_tables(self)
+        if not tables:
+            raise UserError(
+                "No se detectaron tablas de líneas de facturas de compra."
+            )
 
         wizard = self.env["saes.detected.tables.wizard"].create({})
 
@@ -1192,56 +1238,6 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             "view_mode": "form",
             "target": "new",
             "res_id": wizard.id,
-            "context": {
-                "active_id": self.id,
-                "invoice_type": "purchase",
-            },
-        }
-
-    def action_choose_sale_invoice_line_table(self):
-        self.ensure_one()
-
-        tables = self.env["saes.detector"].detect_sale_invoice_line_tables(self)
-        if not tables:
-            raise UserError("No se detectaron tablas de líneas de facturas de venta.")
-
-        Option = self.env["saes.invoice.line.table.option"]
-        Option.search([]).unlink()
-
-        for t in tables:
-            Option.create({"name": t})
-
-        return {
-            "type": "ir.actions.act_window",
-            "name": "Elegir tabla líneas facturas de venta",
-            "res_model": "saes.invoice.line.table.selector",
-            "view_mode": "form",
-            "target": "new",
-            "context": {
-                "active_id": self.id,
-                "invoice_type": "sale",  # 🔥 ESTA LÍNEA ES LA CLAVE
-            },
-        }
-
-    def action_choose_purchase_invoice_line_table(self):
-        self.ensure_one()
-
-        tables = self.env["saes.detector"].detect_purchase_invoice_line_tables(self)
-        if not tables:
-            raise UserError("No se detectaron tablas de líneas de facturas de compra.")
-
-        Option = self.env["saes.invoice.line.table.option"]
-        Option.search([]).unlink()
-
-        for t in tables:
-            Option.create({"name": t})
-
-        return {
-            "type": "ir.actions.act_window",
-            "name": "Elegir tabla líneas facturas de compra",
-            "res_model": "saes.invoice.line.table.selector",
-            "view_mode": "form",
-            "target": "new",
             "context": {
                 "active_id": self.id,
                 "invoice_type": "purchase",

@@ -1,0 +1,31 @@
+<odoo>
+    <record id="view_sale_invoice_line_table_selector_form"
+            model="ir.ui.view">
+        <field name="name">saes.sale.invoice.line.table.selector.form</field>
+        <field name="model">saes.sale.invoice.line.table.selector</field>
+        <field name="arch" type="xml">
+            <form string="Elegir tabla líneas factura de venta">
+                <group>
+                    <field name="table_id"
+                           widget="radio"
+                           options="{'no_create': True}"/>
+
+                </group>
+
+                <footer>
+                    <button name="action_confirm"
+                            string="Confirmar"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancelar"
+                            class="btn-secondary"
+                            special="cancel"/>
+                     <button name="action_preview_raw"
+                            string="Preview RAW"
+                            type="object"
+                            class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

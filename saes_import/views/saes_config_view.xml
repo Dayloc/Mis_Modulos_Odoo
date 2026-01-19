@@ -158,110 +158,122 @@
 
                         </div>
                     </div>
-                  <div class="o_dropdown dropdown">
-    <a class="btn o_dropdown_toggle"
-       style="background:#0a3622;color:white;"
-       data-bs-toggle="dropdown"
-       role="button">
-        <i class="fa fa-file-invoice me-1"/>
-        Facturas
-    </a>
+                    <div class="o_dropdown dropdown">
+                        <a class="btn o_dropdown_toggle"
+                           style="background: #2C3E50;color:white;"
+                           data-bs-toggle="dropdown"
+                           role="button">
+                            <i class="fa fa-file me-1"/>
+                            Facturas
+                        </a>
 
-    <div class="dropdown-menu p-0" style="min-width:300px;">
+                        <div class="dropdown-menu p-0" style="min-width:300px;">
 
-        <!-- ================================================= -->
-        <!-- FACTURAS DE VENTA -->
-        <!-- ================================================= -->
-        <div class="dropdown-header fw-bold text-white"
-             style="background:#0b7b6c;">
-            <i class="fa fa-arrow-up me-1"/> Facturas de venta
-        </div>
 
-        <!-- cabecera venta -->
-        <button name="action_detect_sale_invoice_tables"
-                type="object"
-                string="Detectar tablas"
-                class="dropdown-item"/>
+                            <div class="dropdown-header fw-bold "
+                            style="background: #2C3E50;color:white;">
+                                <i class="fa fa-file-text-o me-1"/>
+                                Facturas de venta
+                            </div>
 
-        <button name="action_choose_sale_invoice_table"
-                type="object"
-                string="Elegir tabla"
-                class="dropdown-item"/>
 
-        <button name="action_preview_sale_invoices"
-                type="object"
-                string="Preview facturas"
-                class="dropdown-item"/>
+                            <button name="action_detect_sale_invoice_tables"
+                                    type="object"
+                                    icon="fa-search"
+                                    string="Detectar tablas (venta)"
+                                    class="dropdown-item"/>
 
-        <!-- líneas venta -->
-        <div class="dropdown-divider"/>
+                            <button name="action_choose_sale_invoice_table"
+                                    type="object"
+                                    icon="fa-table"
+                                    string="Elegir tabla (venta)"
+                                    class="dropdown-item"/>
 
-        <button name="action_detect_sale_invoice_line_tables"
-                type="object"
-                string="Detectar líneas factura"
-                class="dropdown-item text-success"/>
+                            <button name="action_preview_sale_invoices"
+                                    type="object"
+                                    icon="fa-eye"
+                                    string="Preview facturas (venta)"
+                                    class="dropdown-item"/>
 
-        <button name="action_choose_sale_invoice_line_table"
-                type="object"
-                string="Elegir líneas factura"
-                class="dropdown-item text-success"
-                context="{'invoice_type': 'sale'}"/>
 
-        <button name="action_preview_invoice_lines"
-                type="object"
-                string="Preview líneas factura"
-                class="dropdown-item text-success"
-                context="{'invoice_type': 'sale'}"/>
+                            <div class="dropdown-divider"/>
+                            <div style="background: #2C3E50;color:white;">
+                                <button name="action_detect_sale_invoice_line_tables"
+                                        type="object"
+                                        icon="fa-search"
+                                        string="Detectar líneas factura (venta)"
+                                        class="dropdown-item text-black"/>
 
-        <div class="dropdown-divider"/>
+                                <button name="action_choose_sale_invoice_line_table"
+                                        type="object"
+                                        string="Elegir líneas factura (venta)"
+                                        icon="fa-table"
+                                        class="dropdown-item text-black"
+                                        context="{'invoice_type': 'sale'}"/>
 
-        <!-- ================================================= -->
-        <!-- FACTURAS DE COMPRA -->
-        <!-- ================================================= -->
-        <div class="dropdown-header fw-bold text-white"
-             style="background:#5b5b66;">
-            <i class="fa fa-arrow-down me-1"/> Facturas de compra
-        </div>
+                                <button name="action_preview_invoice_lines"
+                                        type="object"
+                                        icon="fa-eye"
+                                        string="Preview líneas factura (venta)"
+                                        class="dropdown-item text-black"
+                                        context="{'invoice_type': 'sale'}"/>
+                            </div>
 
-        <!-- cabecera compra -->
-        <button name="action_detect_purchase_invoice_tables"
-                type="object"
-                string="Detectar tablas"
-                class="dropdown-item"/>
 
-        <button name="action_choose_purchase_invoice_table"
-                type="object"
-                string="Elegir tabla"
-                class="dropdown-item"/>
+                            <div class="dropdown-divider"/>
 
-        <button name="action_preview_purchase_invoices"
-                type="object"
-                string="Preview facturas"
-                class="dropdown-item"/>
 
-        <!-- líneas compra -->
-        <div class="dropdown-divider"/>
+                            <div class="dropdown-header fw-bold "
+                                style="background: #2C3E50;color:white;">
+                                <i class="fa fa-file-text-o me-1"/> Facturas de compra
+                            </div>
 
-        <button name="action_detect_purchase_invoice_line_tables"
-                type="object"
-                string="Detectar líneas factura"
-                class="dropdown-item text-danger"/>
 
-        <button name="action_choose_purchase_invoice_line_table"
-                type="object"
-                string="Elegir líneas factura"
-                class="dropdown-item text-danger"
-                context="{'invoice_type': 'purchase'}"/>
+                            <button name="action_detect_purchase_invoice_tables"
+                                    type="object"
+                                    icon="fa-search"
+                                    string="Detectar tablas (compra)"
+                                    class="dropdown-item"/>
 
-        <button name="action_preview_invoice_lines"
-                type="object"
-                string="Preview líneas factura"
-                class="dropdown-item text-danger"
-                context="{'invoice_type': 'purchase'}"/>
+                            <button name="action_choose_purchase_invoice_table"
+                                    type="object"
+                                    icon="fa-table"
+                                    string="Elegir tabla (compra)"
+                                    class="dropdown-item"/>
 
-    </div>
-</div>
+                            <button name="action_preview_purchase_invoices"
+                                    type="object"
+                                    icon="fa-eye"
+                                    string="Preview facturas (compra)"
+                                    class="dropdown-item"/>
 
+
+                            <div class="dropdown-divider"/>
+                            <div style="background: #2C3E50;color:white;">
+                                <button name="action_detect_purchase_invoice_line_tables"
+                                        type="object"
+                                        icon="fa-search"
+                                        string="Detectar líneas factura (compra)"
+                                        class="dropdown-item  text-black"/>
+
+                                <button name="action_choose_purchase_invoice_line_table"
+                                        type="object"
+                                        string="Elegir líneas factura (compra)"
+                                        icon="fa-table"
+                                        class="dropdown-item text-black"
+                                        context="{'invoice_type': 'purchase'}"/>
+
+                                <button name="action_preview_invoice_lines"
+                                        type="object"
+                                        string="Preview líneas factura (compra)"
+                                        icon="fa-eye"
+                                        class="dropdown-item text-black"
+                                        context="{'invoice_type': 'purchase'}"/>
+                            </div>
+
+
+                        </div>
+                    </div>
 
 
                     <div class="o_dropdown">

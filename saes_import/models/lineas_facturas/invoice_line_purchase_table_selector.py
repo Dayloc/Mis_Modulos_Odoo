@@ -18,13 +18,13 @@ class SaesPurchaseInvoiceLineTableSelector(models.TransientModel):
         config = self.env["saes.import.config"].browse(
             self.env.context.get("active_id")
         )
-
         if not config.exists():
             raise UserError("No hay configuración activa.")
 
         config.purchase_invoice_line_table = self.table_id.name
 
         return {"type": "ir.actions.act_window_close"}
+
 
     def action_preview_raw(self):
         self.ensure_one()
@@ -103,7 +103,7 @@ class SaesPurchaseInvoiceLineTableSelector(models.TransientModel):
         return {
             "type": "ir.actions.act_window",
             "name": f"Preview RAW ({table})",
-            "res_model": "saes.invoice.preview.wizard",
+            "res_model": "saes.invoice.line.preview.wizard",
             "view_mode": "form",
             "target": "new",
             "context": {

@@ -28,9 +28,15 @@ access_saes_invoice_table_option,saes.invoice.table.option,model_saes_invoice_ta
 access_saes_invoice_table_selector,saes.invoice.table.selector,model_saes_invoice_table_selector,base.group_user,1,1,1,1
 access_saes_invoice_preview_wizard,saes.invoice.preview.wizard,model_saes_invoice_preview_wizard,base.group_user,1,1,1,1
 
-access_saes_invoice_line_table_selector,saes.invoice.line.table.selector,model_saes_invoice_line_table_selector,base.group_user,1,1,1,1
-access_saes_invoice_line_table_option,saes.invoice.line.table.option,model_saes_invoice_line_table_option,base.group_user,1,1,1,1
+
+
 access_saes_purchase_invoice_line_table_option,saes.purchase.invoice.line.table.option,model_saes_purchase_invoice_line_table_option,base.group_user,1,1,1,1
 access_saes_purchase_invoice_line_table_selector,saes.purchase.invoice.line.table.selector,model_saes_purchase_invoice_line_table_selector,base.group_user,1,1,1,1
+
+access_saes_sale_invoice_line_table_option,saes.sale.invoice.line.table.option,model_saes_sale_invoice_line_table_option,base.group_user,1,1,1,1
+access_saes_sale_invoice_line_table_selector,saes.sale.invoice.line.table.selector,model_saes_sale_invoice_line_table_selector,base.group_user,1,1,1,1
+access_saes_invoice_line_preview_wizard,saes.invoice.line.preview.wizard,model_saes_invoice_line_preview_wizard,base.group_user,1,1,1,1
+
+
 
 

@@ -31,6 +31,8 @@
         "views/provider_table_selector.xml",
         "views/sale_order_line_table_selector_view.xml",
         "views/invoice_table_selector.xml",
+        "views/invoice_line_sale_table_selector.xml",
+        "views/invoice_line_purchase_table_selector.xml",
         "views/product_table_selector_view.xml",
         "views/sale_order_table_selector_view.xml",
         "wizard_views/wizard_preview_provider_view.xml",

@@ -585,31 +585,25 @@ class SaesDetector(models.AbstractModel):
         tables = self.detect_tables(config)
 
         keywords = [
-            # genérico
+            # genérico líneas
             "line", "linea", "lineas",
             "detalle", "det", "renglon", "item",
 
-            # facturas venta
-            "fac_lin", "fact_lin", "facven_lin",
+            # líneas facturas modernas
             "invoice_line", "invoice_lines",
             "sales_invoice_line", "sale_invoice_line",
-            "inv_line", "invlin",
+
+            # legacy SAGE facturas
+            "factu", "factur", "fact",
+            "fac_", "c_fact", "d_fact",
+            "cfgfact", "sem_fact",
         ]
 
         blacklist = [
-            # cabeceras
             "cab", "header", "head", "master",
-
-            # pedidos
             "pedido", "order",
-
-            # compras
             "purchase", "compra", "prov",
-
-            # stock / contabilidad
             "stock", "mov", "almacen", "warehouse",
-
-            # basura
             "tmp", "temp", "log", "hist",
         ]
 
@@ -626,37 +620,31 @@ class SaesDetector(models.AbstractModel):
             candidates.append(table)
 
         return sorted(set(candidates))
+
     # detectar lineas de facturas(compra)
     def detect_purchase_invoice_line_tables(self, config):
         tables = self.detect_tables(config)
 
         keywords = [
-            # genérico
+            # genérico líneas
             "line", "linea", "lineas",
             "detalle", "det", "renglon", "item",
 
-            # facturas compra
-            "faccom_lin", "factcom_lin",
+            # líneas facturas compra
             "purchase_invoice_line",
             "supplier_invoice_line",
-            "inv_purchase_line",
-            "prov_fac_lin",
+
+            # legacy SAGE facturas
+            "factu", "factur", "fact",
+            "fac_", "c_fact", "d_fact",
+            "cfgfact", "sem_fact",
         ]
 
         blacklist = [
-            # cabeceras
             "cab", "header", "head", "master",
-
-            # ventas
             "sale", "venta", "cliente",
-
-            # pedidos
             "pedido", "order",
-
-            # stock / contabilidad
             "stock", "mov", "almacen", "warehouse",
-
-            # basura
             "tmp", "temp", "log", "hist",
         ]
 
@@ -673,6 +661,7 @@ class SaesDetector(models.AbstractModel):
             candidates.append(table)
 
         return sorted(set(candidates))
+
 
 
 

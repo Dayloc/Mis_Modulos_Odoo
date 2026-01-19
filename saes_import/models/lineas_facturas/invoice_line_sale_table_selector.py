@@ -1,21 +1,17 @@
 from odoo import models, fields
 from odoo.exceptions import UserError
 
-
-class SaesInvoiceLineTableSelector(models.TransientModel):
-    _name = "saes.invoice.line.table.selector"
-    _description = "Selector de tabla de líneas de factura"
+class SaesSaleInvoiceLineTableSelector(models.TransientModel):
+    _name = "saes.sale.invoice.line.table.selector"
+    _description = "Selector tabla líneas factura de venta"
 
     table_id = fields.Many2one(
-        "saes.invoice.line.table.option",
-        string="Tabla de líneas de factura",
+        "saes.sale.invoice.line.table.option",
+        string="Tabla líneas factura de venta",
         required=True,
         ondelete="cascade",
     )
 
-    # ---------------------------------------------------------
-    # CONFIRMAR SELECCIÓN
-    # ---------------------------------------------------------
     def action_confirm(self):
         self.ensure_one()
 
@@ -25,16 +21,10 @@ class SaesInvoiceLineTableSelector(models.TransientModel):
         if not config.exists():
             raise UserError("No hay configuración activa.")
 
-        invoice_type = self.env.context.get("invoice_type")
-
-        if invoice_type == "sale":
-            config.sale_invoice_line_table = self.table_id.name
-        elif invoice_type == "purchase":
-            config.purchase_invoice_line_table = self.table_id.name
-        else:
-            raise UserError("Tipo de factura no válido.")
+        config.sale_invoice_line_table = self.table_id.name
 
         return {"type": "ir.actions.act_window_close"}
+
 
     # ---------------------------------------------------------
     # PREVIEW RAW (IGUAL QUE CLIENTES / LÍNEAS PEDIDO)
@@ -113,7 +103,7 @@ class SaesInvoiceLineTableSelector(models.TransientModel):
         return {
             "type": "ir.actions.act_window",
             "name": f"Preview RAW líneas factura ({table})",
-            "res_model": "saes.invoice.preview.wizard",
+            "res_model": "saes.invoice.line.preview.wizard",
             "view_mode": "form",
             "target": "new",
             "context": {
