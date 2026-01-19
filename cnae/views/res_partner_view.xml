@@ -1,0 +1,15 @@
+<odoo>
+    <record id="res_partner_form_inherit_cnae" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.cnae</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="inside">
+                <group string="CNAE:" col="6">
+                    <field name="cnae_code" nolabel="1" colspan="1"/>
+                    <field name="cnae_id" nolabel="1" colspan="5"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

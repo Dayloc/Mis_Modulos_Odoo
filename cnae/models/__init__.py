@@ -1,0 +1,1 @@
+from . import cnae,res_partner

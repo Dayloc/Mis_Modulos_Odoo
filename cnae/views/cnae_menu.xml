@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_cnae" model="ir.actions.act_window">
+        <field name="name">CNAE</field>
+        <field name="res_model">cnae.cnae</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem
+        id="menu_cnae"
+        name="Nuevo CNAE"
+        parent="contacts.res_partner_menu_config"
+        action="action_cnae"
+        sequence="80"/>
+
+</odoo>
