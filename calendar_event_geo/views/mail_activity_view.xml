@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="mail.mail_activity_view_form"/>
         <field name="arch" type="xml">
 
-            <!-- Insertamos el botón al inicio del sheet -->
+
             <xpath expr="//sheet" position="inside">
                 <div class="oe_button_box" name="button_box">
                     <button

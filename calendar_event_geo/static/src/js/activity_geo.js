@@ -31,7 +31,7 @@ patch(Activity.prototype, "activity_geo_patch", {
 
                 console.log("📍 GEO obtenida:", lat, lon);
 
-                // Buscar el evento real
+                // 1️⃣ Buscar el evento real
                 const events = await rpc("/web/dataset/call_kw", {
                     model: "calendar.event",
                     method: "search_read",
@@ -46,7 +46,7 @@ patch(Activity.prototype, "activity_geo_patch", {
 
                 const eventId = events[0].id;
 
-                // Guardar GEO en el evento
+                // 2️⃣ Guardar GEO en el evento
                 await rpc("/web/dataset/call_kw", {
                     model: "calendar.event",
                     method: "write",
@@ -56,7 +56,7 @@ patch(Activity.prototype, "activity_geo_patch", {
                     }],
                 });
 
-                // Llamar al método ORIGINAL
+                // 3️⃣ Llamar al método ORIGINAL
                 return await this._super(ev);
             },
             () => {

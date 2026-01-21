@@ -4,7 +4,7 @@ from odoo.exceptions import UserError
 
 class SaesDetector(models.AbstractModel):
     _name = "saes.detector"
-    _description = "Detector automático de estructura SAE"
+    _description = "Detector automático de estructura SAGE"
 
     def _fetch_tables_postgres(self, conn):
         cur = conn.cursor()

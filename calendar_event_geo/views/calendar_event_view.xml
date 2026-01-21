@@ -4,14 +4,14 @@
     <record id="view_calendar_event_form_geo" model="ir.ui.view">
         <field name="name">calendar.event.form.geo</field>
         <field name="model">calendar.event</field>
-        <field name="inherit_id" ref="calendar.view_calendar_event_form"/>
+        <field name="inherit_id" ref="calendar.view_calendar_event_form_quick_create"/>
         <field name="arch" type="xml">
 
-            <!-- Insertamos un grupo nuevo dentro del formulario -->
+
             <xpath expr="//sheet" position="inside">
                 <group string="Geolocalización">
 
-                    <!-- Usamos el campo estándar -->
+
                     <field name="location"
                            string="Dirección de la reunión"
                            placeholder="Calle, número, ciudad, código postal"/>

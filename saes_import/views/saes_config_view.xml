@@ -36,7 +36,6 @@
                                     class="dropdown-item"/>
                         </div>
                     </div>
-
                     <div class="o_dropdown">
                         <a class="btn btn-warning   o_dropdown_toggle"
                            data-bs-toggle="dropdown"
@@ -65,8 +64,6 @@
                                     class="dropdown-item"/>
                         </div>
                     </div>
-
-
                     <div class="o_dropdown">
                         <a class="btn btn-success   o_dropdown_toggle"
                            data-bs-toggle="dropdown"
@@ -274,8 +271,6 @@
 
                         </div>
                     </div>
-
-
                     <div class="o_dropdown">
                         <a class="btn btn-info o_dropdown_toggle"
                            data-bs-toggle="dropdown"
@@ -319,10 +314,7 @@
 
                         </div>
                     </div>
-
-
                 </header>
-
                 <sheet>
                     <group col="2">
                         <group string="Origen de datos">
@@ -360,6 +352,9 @@
                             <field name="sale_order_line_table" readonly="1" class="text-primary"/>
                             <field name="sale_invoice_table" readonly="1" class="text-primary"/>
                             <field name="purchase_invoice_table" readonly="1" class="text-primary"/>
+                            <field name="purchase_invoice_line_table" readonly="1" class="text-primary"/>
+                            <field name="sale_invoice_line_table" readonly="1" class="text-primary"/>
+
 
                         </group>
                         <group string="¿Qué deseas importar?">
@@ -372,11 +367,7 @@
                             <field name="import_purchase_invoice"/>
                         </group>
                     </group>
-
-
                 </sheet>
-
-
             </form>
         </field>
     </record>

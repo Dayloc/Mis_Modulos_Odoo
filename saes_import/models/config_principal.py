@@ -4,8 +4,6 @@ from .sqlserver_configuration import SaesSQLServerMixin
 import psycopg2
 
 
-
-
 class SaesImportConfig(models.Model, SaesSQLServerMixin):
     _name = "saes.import.config"
     _description = "Configuración Importador SAGE"
@@ -47,6 +45,7 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
     purchase_invoice_line_table = fields.Char(readonly=True)
 
 
+
     # conexión para ambos sql sever/ postgres
     def _get_connection(self):
         if self.db_type == "postgres":
@@ -65,11 +64,11 @@ class SaesImportConfig(models.Model, SaesSQLServerMixin):
             cur = conn.cursor()
 
             if self.db_type == "sqlserver":
-                # 1️⃣ Obtener columnas
+                #  Obtener columnas
                 cur.execute(f"SELECT TOP 0 * FROM ({query}) t")
                 cols = [c[0] for c in cur.description]
 
-                # 2️⃣ CASTEAR TODO A NVARCHAR
+                # CASTEAR TODO A NVARCHAR
                 casted_cols = [
                     f"CAST([{c}] AS NVARCHAR(MAX)) AS [{c}]"
                     for c in cols
