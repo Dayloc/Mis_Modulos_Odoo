@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <template id="report_invoice_document_custom_monoposte" inherit_id="account.report_invoice_document">
+
+    <xpath expr="//table[contains(@class, 'table')]" position="replace">
+      <table class="table table-sm table-bordered" style="width: 100%; background-color: white;">
+        <thead>
+          <tr style="background-color: #dba6ae; color: white;">
+            <th style="width: 30%; text-align: center;">PRODUCTO Y DESCRIPCIÓN</th>
+            <th style="width: 15%; text-align: center;">IMPORTE</th>
+            <th style="width: 15%; text-align: center;">TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="o.invoice_line_ids" t-as="line" style="background-color: white; text-align: center;">
+            <td style="background-color: white; text-align: left;">
+              <strong><t t-esc="line.product_id.name"/></strong>
+              
+              <t t-if="line.name and line.name != line.product_id.name">
+                <div style="font-style: italic; color: #555;">
+                  <t t-esc="line.name.replace(line.product_id.name or '', '').strip(' :,-')"/>
+                </div>
+              </t>
+            </td>
+            <td style="background-color: white;"><span t-field="line.price_unit"/></td>
+            <td style="background-color: white;"><span t-field="line.price_subtotal"/></td>
+          </tr>
+        </tbody>
+      </table>
+    </xpath>
+
+    <xpath expr="//table[hasclass('o_total_table')]" position="replace">
+        <table class="o_total_table table table-borderless" style="background-color: #f0f0f0;">
+            <tbody>
+                <tr class="o_subtotal">
+                    <td class="text-start" style="background-color: white;"><strong>Base Imponible:</strong></td>
+                    <td class="text-end" style="background-color: white;"><span t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                </tr>
+                <tr class="o_taxes">
+                    <td class="text-start" style="background-color: white;"><strong>Impuestos:</strong></td>
+                    <td class="text-end" style="background-color: white;"><span t-field="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                </tr>
+                <tr class="o_total">
+                    <td class="text-start" style="background-color: white;"><strong>TOTAL:</strong></td>
+                    <td class="text-end" style="background-color: white;"><span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                 </tr>
+            </tbody>
+        </table>
+    </xpath>
+
+    <!-- <xpath expr="//p[@name='payment_communication']" position="replace">
+    </xpath> -->
+
+  </template>
+</odoo>

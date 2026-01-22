@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_comisionista_invoice_tree_inherit" model="ir.ui.view">
+        <field name="name">account.move.tree.comisionista.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="custom_comisionista_report.view_comisionista_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='comision_emplazamiento']" position="after">
+                <field name="comisionista" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

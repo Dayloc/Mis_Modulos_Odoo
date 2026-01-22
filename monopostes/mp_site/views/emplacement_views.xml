@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- View form -->
+        <record id="mp_site_emplacement_form_view" model="ir.ui.view">
+            <field name="name">mp.site.emplacement.form</field>
+            <field name="model">mp.site.emplacement</field>
+            <field name="arch" type="xml">
+                <form string="Emplazamiento">
+                    <sheet>
+                        <header>
+                           <div name="button_box"/>
+                        </header>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="emplacement_type"/>
+                                <field name="owner_id"/>
+                                <field name="installation_date"/>
+                                <field name="emplacement_dismantled"/>
+                                <!-- <field name="state"/> -->
+                                <!-- <field name="property_type"/> -->
+                            </group>
+                            <group>
+                                <field name="commercial_id"/>
+                                <field name="commision"/>
+                                <field name="license"/>
+                                <field name="check_date"/>
+                                <field name="check_done"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Superficies Anunciables">
+                                <group>
+                                    <field name="ad_space_ids" string=""/>
+                                </group>
+                            </page>
+                            <page string="Iluminación">
+                                <group colspan="2">
+                                    <group string="Configuración General">
+                                        <field name="lighting_type"/>
+                                        <field name="lighting_notes" placeholder="Introduce aquí otra información de iluminación ..."/>
+                                        <field name="last_lighting_check" widget="date"/>
+                                    </group>
+
+                                    <group string="Detalles Técnicos">
+                                        <field name="focus_number_id"/>
+                                        <field name="leds"/>
+                                        <field name="celula"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Información Técnica">
+                                <group>
+                                    <field name="number_of_panels"/>
+                                    <field name="clock_id"/>
+                                    <field name="shaft"/>
+                                    <field name="plate_date"/>
+
+                                    <!-- BOOLS -->
+                                    <field name="celosia"/>
+                                    <field name="moldura"/>
+                                    <!-- CHARS -->
+                                    <field name="tubo_torretas"/>
+                                    <field name="placa_anclaje"/>
+                                    <field name="numero_garrotas"/>
+                                    <field name="zapata_cimentacion"/>
+                                    <field name="tramo_1"/>
+                                    <field name="tramo_2"/>
+                                    <field name="tramo_3"/>
+                                    <field name="tramo_4"/>
+                                    <field name="placa_inferior"/>
+                                    <field name="placa_superior"/>
+                                    <field name="cartelas_inferiores"/>
+                                    <field name="cartelas_superiores"/>
+                                    <field name="bridas"/>
+                                    <field name="barra_vigas"/>
+                                    <field name="torretas"/>
+                                    <field name="siluetas"/>
+                                    <field name="numero_piezas_torreta"/>
+                                    <!-- MANY2ONE -->
+                                    <field name="tower_height_id"/>
+                                    <field name="concrete_id"/>
+                                    <field name="ground_height_id"/>
+                                    <!--  -->
+                                </group>
+                            </page>
+                            <page string="Ubicación y observaciones">
+                                <group>
+                                    <field name="observation"/>
+                                    <field name="ubication"/>
+                                    <field name="city"/>
+                                    <field name="state_id"/>
+                                    <field name="country_id"/>
+                                    <field name="location_notes"/>
+                                    <field name="ref_catastral"/>
+                                    <field name="registration_details"/>
+                                    
+                                    <field name="clave_situacion"/>
+                                    <field name="tipo_via"/>
+                                    <field name="codigo_via"/>
+                                    
+                                    <field name="tipo_numero_via"/>
+                                    <field name="numero_via"/>
+                                    <field name="numero_via2"/>
+                                    
+                                    <field name="escalera"/>
+                                    <field name="piso"/>
+                                    <field name="puerta"/>
+                                    <field name="letra"/>
+                                    
+                                    <field name="codigo_postal"/>
+                                    
+                                    <field name="localidad"/>
+                                    <field name="municipio"/>
+                                    <field name="codigo_municipio"/>
+                                    <field name="codigo_provincia"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="mp_site_emplacement_form_view_inherit_smart_button" model="ir.ui.view">
+            <field name="name">mp.site.emplacement.form.smartbutton</field>
+            <field name="model">mp.site.emplacement</field>
+            <field name="inherit_id" ref="mp_site_emplacement_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button"
+                        type="object"
+                        name="action_open_project"
+                        icon="fa-briefcase"
+                        string="Proyecto"
+                        invisible="project_id== False">
+                </button>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- View list -->
+        <record id="mp_site_emplacement_tree_view" model="ir.ui.view">
+            <field name="name">mp.site.emplacement.tree</field>
+            <field name="model">mp.site.emplacement</field>
+            <field name="arch" type="xml">
+                <list string="Emplazamientos">
+                    <field name="name"/>
+                    <field name="ref_catastral" optional="show"/>
+                    <field name="ubication" optional="show"/>
+                    <field name="owner_id" optional="show"/>
+                    <field name="lighting_type" optional="hide"/>
+                    <field name="emplacement_type" optional="hide"/>
+                    <!-- <field name="property_type" optional="hide"/> -->
+                </list>
+            </field>
+        </record>
+
+        <record id="mp_site_emplacement_action" model="ir.actions.act_window">
+            <field name="name">Emplazamientos</field>
+            <field name="res_model">mp.site.emplacement</field>
+            <field name="view_mode">list,form</field> <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crea tu primer emplazamiento.
+                </p><p>
+                    Aquí podrás gestionar todos los terrenos donde se sitúan tus vallas y monopostes.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

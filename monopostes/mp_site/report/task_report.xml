@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+<record id="task_report_action" model="ir.actions.report">
+    <field name="name">Reporte de tareas</field>
+    <field name="model">project.task</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">mp_site.task_report_template</field>
+    <field name="report_file">mp_site.task_report_template</field>
+    <field name="binding_model_id" ref="project.model_project_task"/>
+    <field name="binding_type">report</field>
+</record>
+
+</odoo>

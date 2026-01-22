@@ -1,0 +1,12 @@
+<odoo>
+    <record id="action_report_sale_order_baja" model="ir.actions.report">
+        <field name="name">Informe Bajas Tramitadas</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mp_site.report_sale_order_baja</field>
+        <field name="report_file">mp_site.report_sale_order_baja</field>
+        <field name="print_report_name">'Bajas Tramitadas'</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

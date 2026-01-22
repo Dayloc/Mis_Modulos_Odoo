@@ -1,0 +1,96 @@
+<odoo>
+    <record id="sale_order_project_selection_form_view" model="ir.ui.view">
+        <field name="name">sale.order.project.selection.wizard.form</field>
+        <field name="model">sale.order.project.selection.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Seleccionar o Crear Proyecto">
+                <sheet>
+                    <group>
+                        <field name="sale_order_id" invisible="1"/>
+                        <field name="project_id" string="Superficies anunciables" required="1"/>
+                        <field name="emplacement_id"/>
+                        <field name="selected_ad_space_id"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_confirm_with_project"
+                            string="Confirmar"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sale_order_project_selection" model="ir.actions.act_window">
+        <field name="name">Seleccionar o Crear Proyecto</field>
+        <field name="res_model">sale.order.project.selection.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="sale_order_project_selection_form_view"/>
+    </record>
+
+
+    <record id="view_order_form_inherit_project" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.project</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="baja_tramitada" string="Baja tramitada" invisible="state != 'sale'"/>
+            </xpath>
+
+            <xpath expr="//field[@name='date_order']" position="after">
+                <field name="fecha_pedido" string="Inicio del pedido"/>
+            </xpath>
+
+            <xpath expr="//page[@name='other_information']" position="before">
+                <page invisible="not emplacement_sale_order" string="Superficies anunciables" name="emplacements">
+                    <field name="ad_space_valid_ids" invisible='1'/>
+                    <field name="ad_space_id" domain="[('id', 'in', ad_space_valid_ids)]" options="{'no_create': True}" string=""/>
+                </page>
+                <page string="Comisiones" name="commissions">
+                        <group>
+                            <group string="Venta">
+                                <field name="comisionista_venta_id" string="Comisionista de Venta"/>
+                                <field name="comision_venta" string="Comisión por venta (%)"/>
+                            </group>
+                        </group>
+                </page>
+            </xpath>
+
+            <xpath expr="//header" position="inside">
+                <button name="action_invoice_by_line"
+                        type="object"
+                        string="Separar por líneas"
+                        class="btn-primary"
+                        invisible="not show_invoice_by_line_button"
+                        />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_inherit_sale_subscription_tree" model="ir.ui.view">
+        <field name="name">sale.subscription.tree.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_subscription.sale_subscription_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='recurring_total']" position="before">
+                <field name="baja_tramitada" string="Baja tramitada" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_quotation_tree_with_onboarding_inherit_project" model="ir.ui.view">
+        <field name="name">sale.order.tree.inherit.project</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="order_type"/>
+                <field name="ad_space_id"  widget="many2many_tags" string="Superficies anunciables"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

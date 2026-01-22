@@ -1,0 +1,101 @@
+<odoo>
+    <record id="action_fix_sale_order_emplacement" model="ir.actions.server">
+        <field name="name">Ajustar Espacios en Pedidos</field>
+        <field name="model_id" ref="model_mp_site_emplacement"/>
+        <field name="binding_model_id" ref="model_mp_site_emplacement"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = record.fix_sale_order()
+        </field>
+    </record>
+
+    <record id="action_calculate_availability_ad_space" model="ir.actions.server">
+        <field name="name">Actualizar Disponibilidad</field>
+        <field name="model_id" ref="model_mp_site_ad_space"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.calculate_availability()
+        </field>
+        <field name="binding_model_id" ref="model_mp_site_ad_space"/>
+        <field name="binding_type">action</field>
+    </record>
+
+    <record id="action_create_project_emplacement" model="ir.actions.server">
+        <field name="name">Crear proyectos asociados</field>
+        <field name="model_id" ref="model_mp_site_emplacement"/>
+        <field name="binding_model_id" ref="model_mp_site_emplacement"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.create_project()
+        </field>
+    </record>
+
+    <record id="action_mark_projects_billable" model="ir.actions.server">
+        <field name="name">Marcar como facturable</field>
+        <field name="model_id" ref="project.model_project_project"/>
+        <field name="binding_model_id" ref="project.model_project_project"/>
+        <field name="state">code</field>
+        <field name="code">
+            for project in records:
+                project.write({'allow_billable': True})
+        </field>
+    </record>
+
+    <record id="action_reconvertir_presupuesto" model="ir.actions.server">
+        <field name="name">Reconvertir presupuesto</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.action_reconvertir_presupuesto()
+        </field>
+    </record>
+
+    <record id="action_assign_project_from_ad_space" model="ir.actions.server">
+        <field name="name">Asignar Proyecto desde Espacio Publicitario</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.action_assign_billable_project_from_ad_space()
+        </field>
+    </record>
+
+    <record id="action_reassign_ad_space" model="ir.actions.server">
+        <field name="name">Reasignar Espacio publicitario</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.action_reasign_ad_space()
+        </field>
+    </record>
+
+    <record id="action_create_and_link_analytic_account" model="ir.actions.server">
+        <field name="name">Crear y vincular cuenta analítica</field>
+        <field name="model_id" ref="project.model_project_project"/>
+        <field name="binding_model_id" ref="project.model_project_project"/>
+        <field name="state">code</field>
+        <field name="code">
+            for project in records:
+                analytic_name = "Analitico-" + project.name
+                analytic_account = env['account.analytic.account'].create({
+                    'name': analytic_name,
+                    'plan_id': 1,
+                })
+                project.write({'account_id': analytic_account.id})
+        </field>
+    </record>
+
+
+    <record id="action_copy_project_analytic_to_sale_lines" model="ir.actions.server">
+        <field name="name">Copiar analítica del proyecto a líneas de venta</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">
+records.copy_project_analytic_to_lines()
+        </field>
+    </record>
+
+</odoo>

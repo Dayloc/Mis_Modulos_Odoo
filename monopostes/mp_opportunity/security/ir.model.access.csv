@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mp_opportunity_manager,mp.opportunity.manager,model_mp_opportunity,mp_opportunity.group_mp_opportunity_manager,1,1,1,1
+access_mp_opportunity_admin,mp.opportunity.admin,model_mp_opportunity,base.group_system,1,1,1,1
+access_define_emplacement_wizard_manager,access.define.emplacement.manager,model_define_emplacement,mp_opportunity.group_mp_opportunity_manager,1,1,1,1
+access_define_emplacement_wizard_admin,access.define.emplacement.admin,model_define_emplacement,base.group_system,1,1,1,1

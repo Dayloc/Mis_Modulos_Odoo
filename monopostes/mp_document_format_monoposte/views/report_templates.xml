@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+    <!-- Sobrescribir el template de factura para eliminar la sección de forma de pago automática -->
+    <template id="custom_invoice_layout" inherit_id="account.report_invoice_document">
+    <xpath expr="//div[@t-if='not is_html_empty(o.narration)']" position="before">
+        <div t-if="False"/>
+    </xpath>
+
+        <xpath expr="//div[@name='reference']" position="replace">
+            <div/>
+        </xpath>
+
+        <xpath expr="//div[@name='origin']" position="replace">
+            <div/>
+        </xpath>
+
+        <xpath expr="//p[@name='payment_communication']" position="replace">
+            <p name="payment_communication"></p>
+        </xpath>
+
+        <xpath expr="//div[@class='mb-3']//span[@id='payment_terms_note_id']/.." position="replace">
+            <div class="mb-3"></div>
+        </xpath>
+    </template>
+
+    <template id="external_layout_monoposte">
+        <div t-attf-class="header o_company_#{company.id}_layout"
+            style="padding-bottom: 20px; padding-top: 30px; padding-left: 15px; padding-right: 20px;">
+            <div class="row">
+
+                <!-- COLUMNA IZQUIERDA: LOGO + DATOS DE DOCUMENTO -->
+                <div class="col-6">
+                    <!-- LOGO GRANDE -->
+                    <div style="position: relative; top: 25px;">
+                            <div style="position: relative;">
+                                <img t-if="company.logo"
+                                    class="o_company_logo_big"
+                                    t-att-src="image_data_uri(company.logo)"
+                                    alt="Logo de la Empresa"
+                                    style="max-height: 200px; max-width: 100%; position: relative; top: -40px;"/>
+                            </div>
+
+                            <div class="mt-2" style="font-size: 0.9em; position: relative; top: -35px;">
+                                <t t-if="company.street"><span t-esc="company.street"/></t><br/>
+                                <t t-if="company.zip"><span t-esc="company.zip"/></t> <t t-if="company.city"><span t-esc="company.city"/></t><br/>
+                                <t t-if="company.state_id"><span t-esc="company.state_id.name"/></t>
+                                <t t-if="company.country_id"> - <span t-esc="company.country_id.name"/></t><br/>
+                                <t t-if="company.phone"><span t-esc="company.phone"/></t><br/>
+                                <t t-if="company.email"><span t-esc="company.email"/></t>
+                            </div>
+                    </div>
+
+                    <!-- DATOS DOCUMENTO -->
+                    <div class="mt-4">
+                        <table class="table table-sm table-borderless" style="width: 90%; table-layout: fixed;">
+                            <tr>
+                                <td class="text-start" style="padding: 2px; width: 40%;"><strong>
+                                    <t t-if="o and o._name == 'account.move'">FACTURA Nº:</t>
+                                    <t t-elif="o and o._name == 'sale.order'">PEDIDO Nº:</t>
+                                    <t t-else="">DOCUMENTO Nº:</t>
+                                </strong></td>
+                                <td class="text-start" style="padding: 1px; width: 60%;">
+                                <!-- FIX para el preview de diseño de documento -->
+                                    <t t-if="o">
+                                        <span t-esc="(
+                                            '2025-' if (o._name == 'account.move'
+                                                        and o.invoice_date
+                                                        and o.invoice_date.year == 2025)
+                                            else ''
+                                        ) + (o.name or '')"
+                                        style="display: block; text-align: left;"/>
+                                    </t>
+
+                                    <t t-else="">
+                                        <span style="display:block; text-align:left;"></span>
+                                    </t>
+                                </td>
+                            </tr>
+
+                            <!-- FECHA para Facturas -->
+                            <t t-if="o and o._name == 'account.move' and o.invoice_date">
+                                <tr>
+                                    <td class="text-start" style="padding: 1px;"><strong>FECHA:</strong></td>
+                                    <td class="text-start" style="padding: 1px;">
+                                        <span t-esc="o.invoice_date.strftime('%d/%m/%Y')" style="display: block; text-align: left;"/>
+                                    </td>
+                                </tr>
+                            </t>
+
+                            <!-- FECHA para Pedidos -->
+                            <tr t-if="o and o._name == 'sale.order' and o.date_order">
+                                <td class="text-start" style="padding: 1px;"><strong>FECHA PEDIDO:</strong></td>
+                                <td class="text-start" style="padding: 1px;">
+                                    <span t-esc="o.date_order.strftime('%d/%m/%Y')" style="display: block; text-align: left;"/>
+                                </td>
+                            </tr>
+
+                            <!-- REF -->
+                            <tr t-if="o and 'ref' in o._fields and o.ref">
+                                <td class="text-start" style="padding: 1px; vertical-align: top;"><strong>REF:</strong></td>
+                                <td class="text-start" style="padding: 1px; word-break: break-word; overflow-wrap: break-word; max-width: 200px;">
+                                    <span t-esc="o.ref" style="display: block; text-align: left;"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+                <!-- COLUMNA DERECHA: DATOS DEL CLIENTE -->
+                <div class="col-6" t-if="o and o.partner_id" style="padding-top: 168px;">
+                    <strong t-field="o.partner_id.name" class="d-block mb-1"/> <!-- Nombre del cliente -->
+
+                    <address class="mb-0" itemscope="itemscope" itemtype="http://schema.org/Organization" style="font-size: 1em;">
+                        <div itemprop="address" itemscope="itemscope" itemtype="http://schema.org/PostalAddress">
+                            
+                            <span itemprop="streetAddress" t-field="o.partner_id.street"/>
+                            <br/>
+                            <span itemprop="postalCode" t-field="o.partner_id.zip"/> 
+                            <br/>
+                            <span itemprop="addressLocality" t-field="o.partner_id.city"/>
+                            <br/>
+
+                            <span itemprop="addressRegion" t-field="o.partner_id.state_id.name"/>
+                            <span>-</span>
+                            <span itemprop="addressCountry" t-field="o.partner_id.country_id.name" class="d-inline-block mb-2"/> <!-- Región - País -->
+                        </div>
+
+                        <div style="margin-top: 60px;">
+                            <strong>CIF/DNI:</strong> <span t-field="o.partner_id.vat"/><br/>
+                            <t t-if="o._fields.get('campaign_id') and o.campaign_id">
+                                <strong>CAMPAÑA:</strong> <span t-esc="o.campaign_id.name"/>
+                            </t>
+                        </div>
+                    </address>
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <div t-attf-class="article o_report_layout_modern o_table_striped o_company_#{company.id}_layout"
+             t-att-data-oe-model="o and o._name"
+             t-att-data-oe-id="o and o.id"
+             t-att-data-oe-lang="o and o.env.context.get('lang')"
+             style="padding: 5px; padding-top: 200px; margin-top: 30px;"> 
+
+<!-- Eliminar los campos entre cabecera y tabla -->
+            <t t-out="0"/>
+
+            <div class="row mt-4" t-if="o and o._name == 'account.move'">
+                <div class="col-12">
+
+                    <!-- Forma de pago-->
+                    <div>
+                        <strong>FORMA DE PAGO: </strong>
+                        <t t-if="'recibo' in (o.invoice_payment_term_id.name or '').lower()">
+                            <span t-esc="o.invoice_payment_term_id.name"/>
+                        </t>
+                    </div>
+
+                    <!-- IBAN solo para recibos -->
+                    <t t-if="'recibo' in (o.invoice_payment_term_id.name or '').lower()">
+                        <div class="mt-2">
+                            <strong>IBAN: </strong>
+                            <span t-esc="o.partner_id.bank_ids and o.partner_id.bank_ids[0].acc_number or ''"/>
+                        </div>
+                    </t>
+
+                    <!-- Bloque de transferencias con detalles de pago -->
+                    <t t-if="'transferencia' in (o.invoice_payment_term_id.name or '').lower()">
+                        <t t-set="payment_term_details" t-value="o.payment_term_details"/>
+                        <div class="mb-3">
+
+                            <!-- Nota de pago -->
+                            <span id="payment_terms_note_id"
+                                t-if="o.invoice_payment_term_id.note"
+                                t-field="o.invoice_payment_term_id.note"
+                                name="payment_term">Payment within 30 calendar day</span><br/>
+
+                            <t t-if="o.invoice_payment_term_id.display_on_invoice and payment_term_details">
+                                <div t-if='o.show_payment_term_details' id="total_payment_term_details_table" class="row">
+                                    <div t-attf-class="#{'col-10' if report_type != 'html' else 'col-sm-10 col-md-9'}">
+
+                                        <!-- Descuento por pronto pago -->
+                                        <t t-if="o._is_eligible_for_early_payment_discount(o.currency_id,o.invoice_date)">
+                                            <td>
+                                                <span t-options='{"widget": "monetary", "display_currency": o.currency_id}'
+                                                    t-out="o.invoice_payment_term_id._get_amount_due_after_discount(o.amount_total, o.amount_tax)"/>
+                                                due if paid before
+                                                <span t-out="o.invoice_payment_term_id._get_last_discount_date_formatted(o.invoice_date)"/>
+                                            </td>
+                                        </t>
+
+                                        <!-- Detalle de plazos -->
+                                        <t t-if="len(payment_term_details) > 1"
+                                        t-foreach="payment_term_details"
+                                        t-as="term">
+                                            <div>
+                                                <span t-out="term_index + 1"/> - Installment of
+                                                <t t-options='{"widget": "monetary", "display_currency": o.currency_id}'
+                                                t-out="term.get('amount')" class="text-end"/>
+                                                <span> due on </span>
+                                                <t t-out="term.get('date')" class="text-start"/>
+                                            </div>
+                                        </t>
+
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+
+                    <!-- Vencimientos -->
+                    <div class="mt-2">
+                        <strong>VENCIMIENTOS: </strong> <span t-field="o.invoice_date_due"/>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Verifica si el footer es html vacio y si lo es pone el texto fijo -->
+
+        <!-- Configurar altura de footer en formato de papel -->
+        <t t-if="company.report_footer and company.report_footer != '&lt;p data-oe-version=&quot;1.2&quot;&gt;&lt;br&gt;&lt;/p&gt;'">
+            <div t-attf-class="footer o_company_#{company.id}_layout text-center"
+                style="padding: 10px; margin-top: 50px; font-size: 0.8em;">
+                <div t-field="company.report_footer"/>
+            </div>
+        </t>
+        <t t-else="">
+            <div class="footer text-center" style="padding: 10px; margin-top: 30px; font-size: 0.8em;">
+                <span>
+                    C.I.F. B-80822067. Registro Mercantil de Madrid, Tomo 7872. Libro 0, Folio 14, Sección 8, Hoja M-127220, Inscripción 1ª
+                </span>
+            </div>
+        </t>
+
+    </template>
+
+</odoo>

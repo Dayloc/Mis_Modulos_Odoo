@@ -1,0 +1,32 @@
+<odoo>
+    <template id="report_sale_order_baja">
+        <t t-call="web.external_layout">
+            <main>
+                <div class="page">
+                    <h2>Órdenes con Baja Tramitada (En Progreso)</h2>
+
+                    <table class="table table-sm mt32">
+                        <thead>
+                            <tr>
+                                <th>Pedido</th>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Importe</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="order">
+                                <tr>
+                                    <td><t t-esc="order.name"/></td>
+                                    <td><t t-esc="order.partner_id.name"/></td>
+                                    <td><t t-esc="order.date_order"/></td>
+                                    <td><t t-esc="order.amount_total"/>€</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </t>
+    </template>
+</odoo>

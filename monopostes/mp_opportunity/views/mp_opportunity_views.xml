@@ -1,0 +1,139 @@
+<odoo>
+    <data>
+        <record id="mp_opportunity_view_list" model="ir.ui.view">
+            <field name="name">mp.opportunity.list</field>
+            <field name="model">mp.opportunity</field>
+            <field name="arch" type="xml">
+                <list string="Oportunidades">
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="hired_state"  widget="badge"/>
+                    <field name="owner" required="1"/>
+                    <!-- <field name="lights_included"/> -->
+                    <field name="city"/>
+                    <field name="province"/>
+                    <field name="amount"/>
+                    <field name="commercial"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="mp_opportunity_view_kanban" model="ir.ui.view">
+            <field name="name">mp.opportunity.kanban</field>
+            <field name="model">mp.opportunity</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_state" string="Oportunidades" default_group_by="hired_state">
+                    <field name="name"/>
+                    <field name="hired_state"/>
+                    <field name="city"/>
+                    <field name="province"/>
+                    <field name="amount"/>
+                    <field name="commercial"/>
+                    
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <div class="o_kanban_primary_left">
+                                    <strong><field name="name"/></strong>
+                                </div>
+                                <div class="o_kanban_secondary_left">
+                                    <div><field name="commercial"/></div>
+                                    <div><field name="city"/></div>
+                                    <div><field name="province"/></div>
+                                </div>
+                                <div class="o_kanban_primary_right">
+                                    <field name="amount" widget="monetary"/>€
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="mp_opportunity_view_form" model="ir.ui.view">
+            <field name="name">mp.opportunity.form</field>
+            <field name="model">mp.opportunity</field>
+            <field name="arch" type="xml">
+                <form string="Oportunidad">
+                    <header>
+                        <field name="hired_state" widget="statusbar" options="{'clickable': 1}"/>
+                        <!-- statusbar_visible="borrador,propuesto,formalizado"/> -->
+                        <button name="action_create_purchase_order"
+                                type="object"
+                                string="Crear presupuesto de compra"
+                                class="oe_highlight"
+                                help="Crea un nuevo presupuesto de compra asociado a esta oportunidad."
+                                invisible="hired_state != 'borrador'"/>
+
+                        <button name="action_set_desestimado"
+                                type="object"
+                                string="Desestimar"
+                                class="oe_highlight"
+                                invisible="hired_state not in ['propuesto','formalizado']"/>
+
+                        <button name="action_set_borrador"
+                                type="object"
+                                string="Establecer Borrador"
+                                class="oe_highlight"
+                                invisible="hired_state != 'desestimado'"/>
+
+                    </header>
+                    <sheet>
+                
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_get_purchases"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-shopping-cart"
+                                    string="Órden de Compra"
+                                    invisible="hired_state == 'borrador' or hired_state == 'desestimado'">
+                            </button>
+                        </div>
+                        
+                        <div class="oe_title">
+                            <widget name="web_ribbon"
+                                    title="DESESTIMADA"
+                                    bg_color="bg-danger"
+                                    invisible= "hired_state != 'desestimado'"/>
+
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="owner" required="1"/>
+                                <field name="date"/>
+                                <field name="quarter" readonly="1"/>
+                                <field name="commercial"/>
+                            </group>
+                            <group>
+                                <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <field name="expected_license" />
+                                <field name="expected_comission" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Ubicación">
+                                <group>
+                                    <field name="emplacement_id" readonly="1" />
+                                    <field name="city" string="Ciudad"/>
+                                    <field name="province"/>
+                                    <field name="Maps_link" widget="url"/>
+                                </group>
+                            </page>
+                            <page string="Observaciones">
+                                <group>
+                                    <field name="observations"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

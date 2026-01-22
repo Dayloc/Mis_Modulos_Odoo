@@ -1,0 +1,27 @@
+<odoo>
+    <data>
+        <record id="mp_opportunity_action" model="ir.actions.act_window">
+            <field name="name">Oportunidades MP</field>
+            <field name="res_model">mp.opportunity</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crea una nueva oportunidad de emplazamiento
+                </p>
+            </field>
+        </record>
+
+        <menuitem
+            id="mp_opportunity_menu_root"
+            name="Oportunidades de emplazamiento"
+            sequence="10"
+            web_icon="mp_opportunity,static/description/icon.png"/>
+
+        <menuitem
+            id="mp_opportunity_submenu"
+            name="Oportunidades"
+            parent="mp_opportunity_menu_root"
+            action="mp_opportunity_action"
+            sequence="1"/>
+    </data>
+</odoo>

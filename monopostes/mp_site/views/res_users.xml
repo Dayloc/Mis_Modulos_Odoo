@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- <record id="view_users_form_inherit_comerciales" model="ir.ui.view">
+        <field name="name">res.users.form.comerciales</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='preferences']" position="inside">
+                <group string="Comerciales">
+                    <field name="is_comerciales_monoposte"/>
+                </group>
+            </xpath>
+        </field>
+    </record> -->
+
+        <record id="view_users_form_inherit_admin_monoposte" model="ir.ui.view">
+        <field name="name">res.users.form.admin.monoposte</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='preferences']" position="inside">
+                <group string="Administrador Monoposte">
+                    <field name="is_admin_monoposte"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

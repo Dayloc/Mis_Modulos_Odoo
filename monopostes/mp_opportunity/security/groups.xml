@@ -1,0 +1,30 @@
+<odoo>
+    <!-- Grupo de Gestores -->
+    <record id="group_mp_opportunity_manager" model="res.groups">
+        <field name="name">Gestor de Oportunidades</field>
+    </record>
+
+    <!-- Regla: los usuarios solo pueden ver/editar sus propias oportunidades -->
+    <record id="mp_opportunity_rule_own" model="ir.rule">
+        <field name="name">Usuarios: solo sus Oportunidades</field>
+        <field name="model_id" ref="model_mp_opportunity"/>
+        <field name="domain_force">[('commercial', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Regla: los gestores pueden ver todas las oportunidades -->
+    <record id="mp_opportunity_rule_manager" model="ir.rule">
+        <field name="name">Gestores: ver todas las Oportunidades</field>
+        <field name="model_id" ref="model_mp_opportunity"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('mp_opportunity.group_mp_opportunity_manager'))]"/>
+    </record>
+
+    <!-- Regla: los administradores pueden ver todas las oportunidades -->
+    <record id="mp_opportunity_rule_admin" model="ir.rule">
+        <field name="name">Administradores: ver todas las Oportunidades</field>
+        <field name="model_id" ref="model_mp_opportunity"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+    </record>
+</odoo>

@@ -1,0 +1,17 @@
+<odoo>
+    <record id="group_comerciales" model="res.groups">
+        <field name="name">Comerciales</field>
+    </record>
+
+    <record id="group_comerciales_monoposte" model="res.groups">
+        <field name="name">Comerciales de Monoposte</field>
+        <field name="category_id" ref="base.module_category_sales"/> <!-- opcional -->
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/> <!-- hereda base.group_user -->
+    </record>
+
+    <record id="group_admin_monoposte" model="res.groups">
+        <field name="name">Administrador de Monoposte</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="mp_site_work_order_form_view" model="ir.ui.view">
+            <field name="name">mp.site.work.order.form</field>
+            <field name="model">mp.site.work.order</field>
+            <field name="arch" type="xml">
+                <form string="Orden de Trabajo">
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="planned,in_progress,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="work_type"/>
+                                <field name="emplacement_id"/>
+                                <field name="ad_space_id"/>
+                            </group>
+                            <group>
+                                <field name="planned_date"/>
+                                <field name="completion_date"/>
+                                <field name="assigned_to"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="description" nolabel="1" placeholder="Descripción detallada del trabajo..."/>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="mp_site_work_order_tree_view" model="ir.ui.view">
+            <field name="name">mp.site.work.order.tree</field>
+            <field name="model">mp.site.work.order</field>
+            <field name="arch" type="xml">
+                <tree string="Órdenes de Trabajo">
+                    <field name="name"/>
+                    <field name="work_type"/>
+                    <field name="emplacement_id"/>
+                    <field name="ad_space_id"/>
+                    <field name="planned_date"/>
+                    <field name="assigned_to"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="mp_site_work_order_search_view" model="ir.ui.view">
+            <field name="name">mp.site.work.order.search</field>
+            <field name="model">mp.site.work.order</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Órdenes de Trabajo">
+                    <field name="name"/>
+                    <field name="work_type"/>
+                    <field name="emplacement_id"/>
+                    <field name="ad_space_id"/>
+                    <field name="assigned_to"/>
+                    <field name="state"/>
+                    <group expand="0" string="Agrupar por">
+                        <filter string="Tipo de Trabajo" name="group_by_work_type" context="{'group_by': 'work_type'}"/>
+                        <filter string="Emplazamiento" name="group_by_emplacement" context="{'group_by': 'emplacement_id'}"/>
+                        <filter string="Espacio Publicitario" name="group_by_ad_space" context="{'group_by': 'ad_space_id'}"/>
+                        <filter string="Asignado a" name="group_by_assigned_to" context="{'group_by': 'assigned_to'}"/>
+                        <filter string="Estado" name="group_by_state" context="{'group_by': 'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="mp_site_work_order_action" model="ir.actions.act_window">
+            <field name="name">Órdenes de Trabajo</field>
+            <field name="res_model">mp.site.work.order</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crea tu primera orden de trabajo.
+                </p><p>
+                    Aquí podrás gestionar las tareas de reparación, montaje, desmontaje y limpieza.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

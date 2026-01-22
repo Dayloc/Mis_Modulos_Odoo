@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mp_benefit_report_wizard,mp.benefit.report.wizard,model_mp_benefit_report_wizard,base.group_user,1,1,1,1
+access_mp_benefit_report_line,mp.benefit.report.line,model_mp_benefit_report_line,base.group_user,1,1,1,1

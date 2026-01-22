@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Producto Base -->
+    <record id="product_ad_space_base" model="product.template">
+        <field name="name">Base</field>
+        <field name="type">ad_space</field>
+        <field name="sale_ok">True</field>
+        <field name="purchase_ok">False</field>
+        <field name="list_price">500.0</field>
+    </record>
+
+    <!-- Producto Estándar -->
+    <record id="product_ad_space_estandar" model="product.template">
+        <field name="name">Estandar</field>
+        <field name="type">ad_space</field>
+        <field name="sale_ok">True</field>
+        <field name="purchase_ok">False</field>
+        <field name="list_price">600.0</field>
+    </record>
+
+    <!-- Producto Premium -->
+    <record id="product_ad_space_premium" model="product.template">
+        <field name="name">Premium</field>
+        <field name="type">ad_space</field>
+        <field name="sale_ok">True</field>
+        <field name="purchase_ok">False</field>
+        <field name="list_price">700.0</field>
+    </record>
+
+    <!-- Producto iluminación -->
+    <record id="product_lights" model="product.template">
+        <field name="name">Iluminación</field>
+        <field name="type">service</field>
+        <field name="sale_ok">True</field>
+        <field name="purchase_ok">False</field>
+        <field name="list_price">100.0</field>
+    </record>
+
+    <!-- Producto decoración -->
+    <record id="product_decoration" model="product.template">
+        <field name="name">Decoración en vinilo</field>
+        <field name="type">service</field>
+        <field name="sale_ok">True</field>
+        <field name="purchase_ok">False</field>
+        <field name="list_price">19</field>
+    </record>
+
+    <!-- Tamaño de superficie base -->
+    <record id="ad_space_size_10_4x5" model="ad.space.size">
+        <field name="width">10.4</field>
+        <field name="height">5.0</field>
+    </record>
+
+</odoo>

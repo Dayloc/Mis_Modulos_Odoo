@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Record for report.layout to make your layout selectable in company settings -->
+        <record id="report_layout_monoposte" model="report.layout">
+            <field name="name">Monoposte Layout</field>
+            <field name="sequence">1</field> 
+            <field name="view_id" ref="mp_document_format_monoposte.external_layout_monoposte"/>
+        </record>
+    </data>
+</odoo>

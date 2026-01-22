@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_report_mp_benefit" model="ir.actions.report">
+            <field name="name">Informe de Suscripciones (Desglosado)</field>
+            <field name="model">mp.benefit.report.line</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">mp_benefit_report.report_benefit_document</field>
+            <field name="report_file">mp_benefit_report.report_benefit_document</field>
+            <field name="print_report_name">'Suscripciones Activas - %s' % (time.strftime('%Y-%m-%d'))</field>
+            <field name="binding_model_id" ref="model_mp_benefit_report_line"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_benefit_document">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="oe_structure"/>
+                        
+                        <h2 class="text-center mt-4">Informe de Suscripciones Activas</h2>
+                        <h5 class="text-center text-muted mb-4">Desglose Alquiler e Iluminación</h5>
+
+                        <table class="table table-sm table-striped mt-4">
+                            <thead>
+                                <tr style="background-color: #f2f2f2;">
+                                    <th>Emplazamiento</th>
+                                    <th>Espacio</th>
+                                    <th class="text-end">Alquiler</th>
+                                    <th class="text-end">Iluminación</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="sum_rent" t-value="0"/>
+                                <t t-set="sum_light" t-value="0"/>
+                                <t t-set="sum_total" t-value="0"/>
+
+                                <t t-foreach="docs" t-as="line">
+                                    <tr>
+                                        <td>
+                                            <span t-field="line.emplacement_id.name"/>
+                                            <t t-if="line.emplacement_id.ubication">
+                                                <br/><small class="text-muted" t-field="line.emplacement_id.ubication"/>
+                                            </t>
+                                        </td>
+                                        <td>
+                                            <strong t-field="line.ad_space_id.name"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-field="line.amount_rent" t-options='{"widget": "monetary", "display_currency": user.company_id.currency_id}'/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-field="line.amount_lighting" t-options='{"widget": "monetary", "display_currency": user.company_id.currency_id}'/>
+                                        </td>
+                                        <td class="text-end fw-bold">
+                                            <span t-field="line.total_amount" t-options='{"widget": "monetary", "display_currency": user.company_id.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                    <t t-set="sum_rent" t-value="sum_rent + line.amount_rent"/>
+                                    <t t-set="sum_light" t-value="sum_light + line.amount_lighting"/>
+                                    <t t-set="sum_total" t-value="sum_total + line.total_amount"/>
+                                </t>
+                                
+                                <tr class="fw-bold border-top border-dark" style="background-color: #e9ecef;">
+                                    <td colspan="2" class="text-end">TOTALES:</td>
+                                    <td class="text-end">
+                                        <span t-esc="sum_rent" t-options='{"widget": "monetary", "display_currency": user.company_id.currency_id}'/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="sum_light" t-options='{"widget": "monetary", "display_currency": user.company_id.currency_id}'/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="sum_total" t-options='{"widget": "monetary", "display_currency": user.company_id.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

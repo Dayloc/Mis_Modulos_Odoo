@@ -1,0 +1,21 @@
+<odoo>
+    <record id="dismantled_reason_commercial" model="mp.site.dismantled.reason">
+        <field name="name">Comercialización</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="dismantled_reason_sanction" model="mp.site.dismantled.reason">
+        <field name="name">Expediente sancionador</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="dismantled_reason_contract" model="mp.site.dismantled.reason">
+        <field name="name">Finalización Contrato</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="dismantled_reason_other" model="mp.site.dismantled.reason">
+        <field name="name">Otros</field>
+        <field name="sequence">40</field>
+    </record>
+</odoo>

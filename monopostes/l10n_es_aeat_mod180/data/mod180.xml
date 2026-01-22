@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="mod_180" model="account.report">
+        <field name="name">Modelo 180 (Resumen Anual Retenciones)</field>
+        <field name="sequence">180</field>
+        <field name="custom_handler_model_id" ref="model_l10n_es_aeat_mod180_handler"/>
+        
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_period_comparison" eval="True"/>
+        <field name="filter_unfold_all" eval="False"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="country_id" ref="base.es"/>
+        <field name="root_report_id" ref="account.generic_tax_report"/>
+        
+        <field name="column_ids">
+            <record id="mod_180_column_nif" model="account.report.column">
+                <field name="name">NIF</field>
+                <field name="expression_label">nif</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">5</field>
+                <field name="blank_if_zero" eval="False"/> 
+            </record>
+            <record id="mod_118_column" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+            <record id="mod_180_column_base" model="account.report.column">
+                <field name="name">Base Retenciones</field>
+                <field name="expression_label">base</field>
+            </record>
+            <record id="mod_180_percent_tax" model="account.report.column">
+                <field name="name">% Retenci</field>
+                <field name="expression_label">percent_tax</field>
+            </record>
+            <record id="mod_180_column_tax_amount" model="account.report.column">
+                <field name="name">Retenciones (Cuota)</field>
+                <field name="expression_label">tax</field>
+            </record>
+        </field>
+
+        <field name="line_ids">
+
+            <record id="mod_180_line_retentions" model="account.report.line">
+                <field name="name">Retenciones Practicadas</field>
+                <field name="code">aeat_mod_180_retentions_group</field>
+                <field name="hierarchy_level">0</field>
+                <field name="children_ids">
+                    <record id="mod_180_line_details" model="account.report.line">
+                        <field name="name">[01] Nº Perceptor</field>
+                        <field name="code">aeat_mod_180_details</field>
+                        <field name="groupby">partner_id</field>
+                        <field name="foldable" eval="True"/>
+                        <field name="expression_ids">
+
+                            <!-- <record id="mod_180_details_nif" model="account.report.expression">
+                                <field name="label">nif</field>
+                                <field name="engine">external</field>
+                                <field name="formula">0</field>
+                                <field name="figure_type">string</field>
+                            </record> -->
+
+                            <record id="mod_180_details_base" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">domain</field>
+                                <field name="formula" eval="['|', '|', '|', ('tax_tag_ids', '=', '+mod115[02]'), ('tax_tag_ids', '=', '+mod115[03]'), ('tax_tag_ids', '=', '-mod115[02]'), ('tax_tag_ids', '=', '-mod115[03]')]"/>
+                                <field name="subformula">count_rows</field>
+                                <field name="figure_type">integer</field>
+                            </record>
+                            
+                            <record id="mod_180_details_base_amount" model="account.report.expression">
+                                <field name="label">base</field> 
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">mod115[02]</field> 
+                            </record>
+
+                            <!-- <record id="mod_180_details_percent" model="account.report.expression">
+                                <field name="label">percent_tax</field>
+                                <field name="engine">external</field>
+                                <field name="formula">0</field>
+                                <field name="figure_type">string</field>
+                            </record> -->
+
+                            <record id="mod_180_details_tax" model="account.report.expression">
+                                <field name="label">tax</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">mod115[03]</field>
+                            </record>
+                        </field>
+                    </record>
+
+                    <record id="mod_180_line_02" model="account.report.line">
+                        <field name="name">[02] Base retenciones e ingresos a cuenta</field>
+                        <field name="code">aeat_mod_180_02</field>
+                        <field name="expression_ids">
+                            <record id="mod_180_casilla_02_expr" model="account.report.expression">
+                                <field name="label">base</field> 
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">mod115[02]</field>
+                            </record>
+                        </field>
+                    </record>
+
+                    <record id="mod_180_line_03" model="account.report.line">
+                        <field name="name">[03] Retenciones e ingresos a cuenta</field>
+                        <field name="code">aeat_mod_180_03</field>
+                        <field name="expression_ids">
+                            <record id="mod_180_casilla_03_expr" model="account.report.expression">
+                                <field name="label">tax</field> 
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">mod115[03]</field>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+
+            <record id="mod_180_line_result" model="account.report.line">
+                <field name="name">[05] Resultado a ingresar</field>
+                <field name="code">aeat_mod_180_result</field>
+                <field name="expression_ids">
+                    <record id="mod_180_casilla_05_expr" model="account.report.expression">
+                        <field name="label">tax</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">aeat_mod_180_03.tax</field>
+                    </record>
+                </field>
+            </record>
+
+        </field>
+    </record>
+</odoo>

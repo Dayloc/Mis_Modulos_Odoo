@@ -1,0 +1,9 @@
+/* Aplica solo a esta vista con la clase personalizada */
+.o_list_view.left-align-tree thead th {
+    text-align-last: start;
+}
+
+.o_list_renderer .o_list_table tbody > tr > td.o_list_number {
+    text-align: left !important;
+    direction: ltr;
+}

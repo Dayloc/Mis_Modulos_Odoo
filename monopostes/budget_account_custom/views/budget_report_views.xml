@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="budget_report_view_pivot_inherit" model="ir.ui.view">
+        <field name="name">budget.report.view.pivot.inherit</field>
+        <field name="model">budget.report</field>
+        <field name="inherit_id" ref="account_budget.budget_report_view_pivot"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='budget_analytic_id']" position="after">
+                <field name="general_account_id" type="row"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="budget_report_view_search_inherit" model="ir.ui.view">
+        <field name="name">budget.report.view.search.inherit</field>
+        <field name="model">budget.report</field>
+        <field name="inherit_id" ref="account_budget.budget_report_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="general_account_id"/>
+                <filter string="Cuenta Financiera" name="groupby_account" context="{'group_by': 'general_account_id'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

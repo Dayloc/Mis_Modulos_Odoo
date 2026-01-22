@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <template id="report_saleorder_document_custom_monoposte" inherit_id="sale.report_saleorder_document">
+    
+    <!-- Modificar información sin eliminar el div principal -->
+    <xpath expr="//div[@id='informations']" position="inside">
+      <!-- Aquí puedes añadir tus contenidos personalizados si es necesario -->
+      <!-- Por ejemplo, un mensaje adicional, fecha especial, etc. -->
+    </xpath>
+
+    <!-- Reemplazo de la tabla de líneas de pedido -->
+    <xpath expr="//div[hasclass('page')]/table[1]" position="replace">
+      <table class="table table-sm table-bordered" style="width: 100%;">
+        <thead>
+          <tr style="background-color: #dba6ae; color: white; text-align: center;">
+            <th style="width: 30%; text-align: center;">PRODUCTO Y DESCRIPCIÓN</th>
+            <th style="width: 15%; text-align: center;">IMPORTE</th>
+            <th style="width: 15%; text-align: center;">TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="doc.order_line" t-as="line" style="background-color: white; text-align: center;">
+            <td style="background-color: white; text-align: left;">
+              <strong><t t-esc="line.product_id.name"/></strong>
+              
+              <t t-if="line.name and line.name != (line.product_id.name or '')">
+                  <div style="font-style: italic; color: #555;">
+                      <t t-esc="(line.name or '').replace(line.product_id.name if line.product_id else '', '').strip(' :,-')"/>
+                  </div>
+              </t>
+            </td>
+            <td style="background-color: white;"><t t-if="not line.display_type"><span t-field="line.price_unit"/></t></td>
+            <td style="background-color: white;"><t t-if="not line.display_type"><span t-field="line.price_subtotal"/></t></td>
+          </tr>
+        </tbody>
+      </table>
+    </xpath>
+
+    <!-- Reemplazo de la tabla de totales -->
+    <xpath expr="//table[hasclass('o_total_table')]" position="replace">
+        <table class="o_total_table table table-borderless" style="background-color: #f0f0f0; border: 1px solid #000000ff;">
+            <tbody>
+                <tr class="o_subtotal">
+                    <td class="text-start" style="background-color: white;"><strong>Base Imponible:</strong></td>
+                    <td class="text-end" style="background-color: white;">
+                        <span t-field="doc.amount_untaxed" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                    </td>
+                </tr>
+                <tr class="o_taxes">
+                    <td class="text-start" style="background-color: white;"><strong>Impuestos:</strong></td>
+                    <td class="text-end" style="background-color: white;">
+                        <span t-field="doc.amount_tax" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                    </td>
+                </tr>
+                <tr class="o_total">
+                    <td class="text-start" style="background-color: white;"><strong>TOTAL:</strong></td>
+                    <td class="text-end" style="background-color: white;">
+                        <span t-field="doc.amount_total" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </xpath>
+
+  </template>
+
+  <!-- Mantener compatibilidad con facturas -->
+  <template id="remove_invoice_date_from_invoice_2" inherit_id="account.report_invoice_document">
+    <xpath expr="//div[@id='informations']/*[contains(@name, 'invoice_date')]" position="replace"/>
+  </template>
+
+  <template id="remove_invoice_date_from_invoice_3" inherit_id="account.report_invoice_document">
+    <xpath expr="//div[@id='informations']/div[@name='due_date']" position="replace"/>
+  </template>
+
+</odoo>

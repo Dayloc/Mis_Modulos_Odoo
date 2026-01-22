@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_report_budget_form_inherit" model="ir.ui.view">
+        <field name="name">account.report.budget.form.inherit</field>
+        <field name="model">account.report.budget</field>
+        <field name="inherit_id" ref="account_reports.account_report_budget_form"/>
+        <field name="arch" type="xml">
+<!--            <xpath expr="//sheet" position="before">-->
+<!--                <header>-->
+<!--                    <button name="action_proyectar_presupuesto"-->
+<!--                            string="Duplicar"-->
+<!--                            type="object"-->
+<!--                            class="oe_highlight"/>-->
+<!--                </header>-->
+<!--            </xpath>-->
+            <xpath expr="//field[@name='item_ids']/list" position="attributes">
+                <attribute name="editable">bottom</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='item_ids']/list/field[@name='account_id']" position="after">
+                <field name="last_year_balance_ui"
+                       string="Saldo Año Anterior."
+                       readonly="1"
+                       force_save="1"
+                       optional="show"
+                       width="100%"
+                       decoration-info="1"/>
+
+                <field name="percentage_adj"
+                       widget="percentage"
+                       string="% VAR"
+                       width="100%"
+                       optional="show"/>
+            </xpath>
+
+            <xpath expr="//field[@name='item_ids']/list/field[@name='amount']" position="attributes">
+                <attribute name="string">Importe</attribute>
+                <attribute name="decoration-bf">1</attribute>
+                <attribute name="force_save">1</attribute>
+
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

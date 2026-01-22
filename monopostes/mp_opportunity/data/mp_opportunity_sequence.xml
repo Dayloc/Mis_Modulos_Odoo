@@ -1,0 +1,10 @@
+<odoo>
+    <data noupdate="1">
+        <record id="mp_opportunity_sequence" model="ir.sequence">
+            <field name="name">MP Opportunity Sequence</field>
+            <field name="code">mp.opportunity</field>
+            <field name="prefix">MP-</field>
+            <field name="padding">4</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <template id="task_report_template">
+    <t t-call="web.html_container">
+      <t t-call="web.basic_layout">
+        <div class="page">
+
+          <!-- Definir valor único para tareas sin partner -->
+          <t t-set="no_contacto_asociado" t-value="'__no_partner__'"/>
+
+          <!-- Calcular la semana una sola vez -->
+          <t t-set="all_weeks" t-value="[]"/>
+          <t t-foreach="docs" t-as="task">
+            <t t-if="task.date_deadline">
+              <t t-set="week_label" t-value="'W%d' % task.date_deadline.isocalendar()[1]"/>
+              <t t-if="week_label not in all_weeks">
+                <t t-set="all_weeks" t-value="all_weeks + [week_label]"/>
+              </t>
+            </t>
+          </t>
+
+          <!-- Calcular todos los emplacements únicos una sola vez -->
+          <t t-set="all_emplacements" t-value="[]"/>
+          <t t-foreach="docs" t-as="task">
+            <t t-if="task.project_id and task.project_id.emplacements_ids">
+              <t t-foreach="task.project_id.emplacements_ids" t-as="e">
+                <t t-if="e not in all_emplacements">
+                  <t t-set="all_emplacements" t-value="all_emplacements + [e]"/>
+                </t>
+              </t>
+            </t>
+          </t>
+
+          <!-- Agrupar tareas por partner (incluyendo sin partner) -->
+          <t t-set="all_partners" t-value="[]"/>
+          <t t-foreach="docs" t-as="task">
+            <t t-if="task.partner_ids">
+              <t t-set="partners" t-value="task.partner_ids"/>
+            </t>
+            <t t-else="">
+              <t t-set="partners" t-value="[no_contacto_asociado]"/>
+            </t>
+            <t t-foreach="partners" t-as="p">
+              <t t-if="p not in all_partners">
+                <t t-set="all_partners" t-value="all_partners + [p]"/>
+              </t>
+            </t>
+          </t>
+
+          <!-- Inicializar contador de partner -->
+          <t t-set="partner_index" t-value="0"/>
+
+          <!-- Iterar por cada partner -->
+          <t t-foreach="all_partners" t-as="partner">
+            <!-- Incrementar contador -->
+            <t t-set="partner_index" t-value="partner_index + 1"/>
+
+            <!-- Salto de página si no es el primer partner -->
+            <div t-attf-style="#{ 'page-break-before: always;' if partner_index > 1 else '' } margin-top: 3em; margin-bottom: 3em;">
+
+              <!-- Mostrar la semana -->
+              <div style="text-align: center; font-size: 18px;">
+                <h2 style="margin-top: 0;">
+                  <t t-if="all_weeks">
+                    <t t-esc="'Informe de semana (' + all_weeks[0] + ')'"/>
+                  </t>
+                  <t t-else="">
+                    Sin semanas
+                  </t>
+                </h2>
+                <h3>
+                  <t t-if="partner != no_contacto_asociado">
+                    <t t-esc="partner.name"/>
+                  </t>
+                  <t t-else="">
+                    Sin montador asociado
+                  </t>
+                </h3>
+              </div>
+
+              <!-- Repetir por cada emplacement solo si hay tareas para este partner -->
+              <t t-foreach="all_emplacements" t-as="e">
+                <!-- Verificar si hay tareas para este partner en este emplacement -->
+                <t t-set="has_tasks_in_emplacement" t-value="False"/>
+                <t t-foreach="docs" t-as="task">
+                  <t t-if="task.project_id and task.project_id.emplacements_ids and e in task.project_id.emplacements_ids">
+                    <t t-set="partners" t-value="task.partner_ids if task.partner_ids else [no_contacto_asociado]"/>
+                    <t t-if="partner in partners">
+                      <t t-set="has_tasks_in_emplacement" t-value="True"/>
+                    </t>
+                  </t>
+                </t>
+
+                <!-- Mostrar la tabla solo si hay tareas -->
+                <t t-if="has_tasks_in_emplacement">
+                  <div style="margin-top: 2em; margin-bottom: 2em;">
+                    <table style="width:100%; border-collapse: collapse; font-size: 14px; background-color: white;" border="1">
+                      <thead>
+                        <tr style="background-color: #dba6ae;">
+                          <th colspan="2" style="text-align: left; padding: 8px;">
+                            <strong style="font-size: 1.2em;">
+                              <t t-esc="e.name or ''"/>
+                              <t t-if="e.ubication"> <t t-esc="e.ubication"/></t>
+                              <t t-if="e.city"> <t t-esc="e.city"/></t>
+                              <t t-if="e.state_id"> <t t-esc="e.state_id.name"/></t>
+                              <t t-if="e.country_id"> <t t-esc="e.country_id.name"/></t>
+                              <t t-if="e.location_notes"> - <t t-esc="e.location_notes"/></t>
+                            </strong>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <t t-foreach="docs" t-as="task">
+                          <t t-if="task.project_id and task.project_id.emplacements_ids and e in task.project_id.emplacements_ids">
+                            <t t-set="partners" t-value="task.partner_ids if task.partner_ids else [no_contacto_asociado]"/>
+                            <t t-if="partner in partners">
+                              <tr>
+                                <td style="width: 200px; padding: 8px; vertical-align: top;">
+                                  <t t-esc="task.name"/>
+                                </td>
+                                <td style="width: 500px; padding: 8px; vertical-align: top;">
+                                  <t t-esc="task.description or 'N/A'"/>
+                                </td>
+                              </tr>
+                            </t>
+                          </t>
+                        </t>
+                      </tbody>
+                    </table>
+                  </div>
+                </t>
+              </t> <!-- /foreach emplacement -->
+
+            </div>
+          </t> <!-- /foreach partner -->
+
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

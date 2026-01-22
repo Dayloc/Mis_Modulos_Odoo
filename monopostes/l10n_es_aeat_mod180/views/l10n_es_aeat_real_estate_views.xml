@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_import_mp_site_data" model="ir.actions.server">
+        <field name="name">Importar desde Emplazamientos</field>
+        <field name="model_id" ref="model_l10n_es_aeat_real_estate"/>
+        <field name="binding_model_id" ref="model_l10n_es_aeat_real_estate"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_import_mp_emplacements()
+        </field>
+    </record>
+
+    <record id="view_l10n_es_aeat_real_estate_list" model="ir.ui.view">
+        <field name="name">l10n.es.aeat.real.estate.list</field>
+        <field name="model">l10n.es.aeat.real.estate</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="partner_id"/>
+                <field name="reference"/>
+                <field name="address"/>
+                <field name="number"/>
+                <field name="city"/>
+                <field name="zip"/>
+                <field name="state_id" optional="hide"/>
+                <field name="real_estate_situation" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_l10n_es_aeat_real_estate_form" model="ir.ui.view">
+        <field name="name">l10n.es.aeat.real.estate.form</field>
+        <field name="model">l10n.es.aeat.real.estate</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="reference" placeholder="Referencia Catastral"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="real_estate_situation"/>
+                        </group>
+                    </group>
+                    <group string="Dirección">
+                        <group>
+                            <field name="address_type"/>
+                            <field name="address"/>
+                            <field name="number"/>
+                            <field name="zip"/>
+                            <field name="city"/>
+                            <field name="state_id"/>
+                        </group>
+                        <group>
+                            <field name="number_type"/>
+                            <field name="floor"/>
+                            <field name="door"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_l10n_es_aeat_real_estate" model="ir.actions.act_window">
+        <field name="name">Inmuebles AEAT</field>
+        <field name="res_model">l10n.es.aeat.real.estate</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_l10n_es_aeat_real_estate"
+              parent="l10n_es_aeat.menu_l10n_es_aeat_submenu"
+              action="action_l10n_es_aeat_real_estate"
+              sequence="99"/>
+
+</odoo>

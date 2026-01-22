@@ -1,0 +1,151 @@
+<odoo>
+
+    <record id="view_focus_number_tree" model="ir.ui.view">
+        <field name="name">focus.number.tree</field>
+        <field name="model">mp.emplacement.focus.number</field>
+        <field name="arch" type="xml">
+            <list string="Nº Focos">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_focus_number_form" model="ir.ui.view">
+        <field name="name">focus.number.form</field>
+        <field name="model">mp.emplacement.focus.number</field>
+        <field name="arch" type="xml">
+            <form string="Nº Focos">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_focus_number" model="ir.actions.act_window">
+        <field name="name">Nº Focos</field>
+        <field name="res_model">mp.emplacement.focus.number</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_focus_number_action"
+              name="Nº Focos"
+              parent="mp_site_menu_config_root"
+              action="action_focus_number"/>
+
+
+
+
+    <record id="view_tower_height_tree" model="ir.ui.view">
+        <field name="name">tower.height.tree</field>
+        <field name="model">mp.emplacement.tower.height</field>
+        <field name="arch" type="xml">
+            <list string="Altura Torretas">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tower_height_form" model="ir.ui.view">
+        <field name="name">tower.height.form</field>
+        <field name="model">mp.emplacement.tower.height</field>
+        <field name="arch" type="xml">
+            <form string="Altura Torretas">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tower_height" model="ir.actions.act_window">
+        <field name="name">Altura Torretas</field>
+        <field name="res_model">mp.emplacement.tower.height</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_tower_height_action"
+              name="Altura Torretas"
+              parent="mp_site_menu_config_root"
+              action="action_tower_height"/>
+
+
+
+    <!-- Tipo de Hormigón -->
+    <record id="view_concrete_type_tree" model="ir.ui.view">
+        <field name="name">concrete.type.tree</field>
+        <field name="model">mp.emplacement.concrete</field>
+        <field name="arch" type="xml">
+            <list string="Tipo de Hormigón">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_concrete_type_form" model="ir.ui.view">
+        <field name="name">concrete.type.form</field>
+        <field name="model">mp.emplacement.concrete</field>
+        <field name="arch" type="xml">
+            <form string="Tipo de Hormigón">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_concrete_type" model="ir.actions.act_window">
+        <field name="name">Tipo de Hormigón</field>
+        <field name="res_model">mp.emplacement.concrete</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_concrete_type_action"
+              name="Tipo de Hormigón"
+              parent="mp_site_menu_config_root"
+              action="action_concrete_type"/>
+
+
+
+    <!-- Altura Suelo -->
+    <record id="view_ground_height_tree" model="ir.ui.view">
+        <field name="name">ground.height.tree</field>
+        <field name="model">mp.emplacement.ground.height</field>
+        <field name="arch" type="xml">
+            <list string="Altura desde el Suelo">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ground_height_form" model="ir.ui.view">
+        <field name="name">ground.height.form</field>
+        <field name="model">mp.emplacement.ground.height</field>
+        <field name="arch" type="xml">
+            <form string="Altura desde el Suelo">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ground_height" model="ir.actions.act_window">
+        <field name="name">Altura desde el Suelo</field>
+        <field name="res_model">mp.emplacement.ground.height</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_ground_height_action"
+              name="Altura desde el Suelo"
+              parent="mp_site_menu_config_root"
+              action="action_ground_height"/>
+</odoo>

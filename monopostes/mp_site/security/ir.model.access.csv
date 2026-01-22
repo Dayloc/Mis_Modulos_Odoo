@@ -1,0 +1,25 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mp_site_emplacement,mp.site.emplacement.user,model_mp_site_emplacement,base.group_user,1,1,1,1
+access_mp_site_ad_space,mp.site.ad.space.user,model_mp_site_ad_space,base.group_user,1,1,1,1
+access_sale_order_project_selection_wizard,access.sale.order.project.selection.wizard,model_sale_order_project_selection_wizard,base.group_user,1,1,1,0
+access_mp_ad_space_history_user,mp.ad.space.history model access,model_mp_ad_space_history,base.group_user,1,1,1,1
+access_ad_space_size_user,ad.space.size user,model_ad_space_size,base.group_user,1,1,1,1
+access_ad_space_shaft_user,access.ad.space.shaft.user,model_ad_space_shaft,base.group_user,1,1,1,1
+access_emplacement_clock_user,access.emplacement.clock.user,model_emplacement_clock,base.group_user,1,1,1,1
+access_focus_number_user,access_focus_number_user,model_mp_emplacement_focus_number,base.group_user,1,1,1,1
+access_tower_height_user,access_tower_height_user,model_mp_emplacement_tower_height,base.group_user,1,1,1,1
+access_concrete_user,access_concrete_user,model_mp_emplacement_concrete,base.group_user,1,1,1,1
+access_ground_height_user,access_ground_height_user,model_mp_emplacement_ground_height,base.group_user,1,1,1,1
+
+access_mp_site_dismantled_reason_user,mp.site.dismantled.reason user,model_mp_site_dismantled_reason,base.group_user,1,1,1,0
+access_mp_site_dismantled_reason_manager,mp.site.dismantled.reason manager,model_mp_site_dismantled_reason,base.group_system,1,1,1,1
+
+access_mp_site_emplacement_comerciales,mp.site.emplacement.user,model_mp_site_emplacement,group_comerciales_monoposte,0,0,0,0
+access_mp_ad_space_history_comerciales,mp.ad.space.history access,model_mp_ad_space_history,group_comerciales_monoposte,0,0,0,0
+access_ad_space_size_comerciales,ad.space.size access,model_ad_space_size,group_comerciales_monoposte,0,0,0,0
+access_ad_space_shaft_comerciales,ad.space.shaft access,model_ad_space_shaft,group_comerciales_monoposte,0,0,0,0
+access_emplacement_clock_comerciales,emplacement.clock access,model_emplacement_clock,group_comerciales_monoposte,0,0,0,0
+access_focus_number_comerciales,focus.number access,model_mp_emplacement_focus_number,group_comerciales_monoposte,0,0,0,0
+access_tower_height_comerciales,tower.height access,model_mp_emplacement_tower_height,group_comerciales_monoposte,0,0,0,0
+access_concrete_comerciales,concrete access,model_mp_emplacement_concrete,group_comerciales_monoposte,0,0,0,0
+access_ground_height_comerciales,ground.height access,model_mp_emplacement_ground_height,group_comerciales_monoposte,0,0,0,0

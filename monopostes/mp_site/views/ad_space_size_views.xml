@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Vista árbol (lista) -->
+        <record id="view_ad_space_size_tree" model="ir.ui.view">
+            <field name="name">ad.space.size.tree</field>
+            <field name="model">ad.space.size</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="width"/>
+                    <field name="height"/>
+                    <field name="area"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista formulario -->
+        <record id="view_ad_space_size_form" model="ir.ui.view">
+            <field name="name">ad.space.size.form</field>
+            <field name="model">ad.space.size</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="width"/>
+                            <field name="height"/>
+                            <field name="area" readonly="1"/>
+                            <field name="name" readonly="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción para abrir la vista -->
+        <record id="mp_site_ad_space_size_action" model="ir.actions.act_window">
+            <field name="name">Tamaños de exhibiciones</field>
+            <field name="res_model">ad.space.size</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crea tus tamaños de exhibiciones publicitarias.
+                </p>
+            </field>
+        </record>
+
+        <!-- Vista árbol (lista) -->
+        <record id="view_ad_space_shaft_tree" model="ir.ui.view">
+            <field name="name">ad.space.shaft.tree</field>
+            <field name="model">ad.space.shaft</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="height"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista formulario -->
+        <record id="view_ad_space_shaft_form" model="ir.ui.view">
+            <field name="name">ad.space.shaft.form</field>
+            <field name="model">ad.space.shaft</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="height"/>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción para abrir la vista -->
+        <record id="mp_site_ad_space_shaft_action" model="ir.actions.act_window">
+            <field name="name">Fustes</field>
+            <field name="res_model">ad.space.shaft</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crea y gestiona los fustes para tus espacios publicitarios.
+                </p>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

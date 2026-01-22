@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- <record id="view_project_kanban_inherit" model="ir.ui.view">
+            <field name="name">project.project.kanban.inherit</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.view_project_kanban"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//span[@name='partner_name']" position="after">
+                    <div invisible="emplacement_count == 0" class="o_kanban_tags">
+                        <a type="object" name="action_view_emplacements">Emplazamiento</a>
+                    </div>
+                    <div class="o_kanban_tags">
+                        <a type="object" name="action_view_sale_orders">Ventas</a>
+                    </div>
+
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_project_list_inherit" model="ir.ui.view">
+            <field name="name">project.project.list.inherit</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.view_project"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//button[@name='action_view_tasks']" position="before">
+                    <button name="action_view_sale_orders"
+                            string="Ver ventas"
+                            type="object"
+                    />
+
+                    <button name="action_view_purchase_orders"
+                            string="Ver compra"
+                            type="object"
+                    />
+
+                    <button name="action_view_emplacements"
+                            string="Ver emplazamiento"
+                            type="object"
+                    />
+
+                </xpath>
+            </field>
+        </record>
+ -->
+        <record id="view_project_form_inherit" model="ir.ui.view">
+            <field name="name">project.project.form.inherit</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.edit_project"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='user_id']" position="before">
+                    
+                    <field name="emplacements_ids" widget="many2many_tags" placeholder="Seleccionar emplazamiento..."/>
+
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_task_form_replace_user_ids_with_contacts" model="ir.ui.view">
+            <field name="name">project.task.form.replace.user_ids.with.contacts</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_form2"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_ids']" position="replace">
+                    <field name="partner_ids" string="Montadores" widget="many2many_tags" placeholder="Seleccionar contacto..."/>
+                </xpath>
+            </field>
+        </record>
+        
+
+
+    </data>
+</odoo>
