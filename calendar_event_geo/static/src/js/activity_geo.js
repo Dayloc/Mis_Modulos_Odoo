@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-console.log("🔥 activity_geo.js CARGADO");
+
 
 import { patch } from "@web/core/utils/patch";
 import { Activity } from "@mail/components/activity/activity";
@@ -31,7 +31,7 @@ patch(Activity.prototype, "activity_geo_patch", {
 
                 console.log("📍 GEO obtenida:", lat, lon);
 
-                // 1️⃣ Buscar el evento real
+                //  Buscar el evento real
                 const events = await rpc("/web/dataset/call_kw", {
                     model: "calendar.event",
                     method: "search_read",
@@ -46,7 +46,7 @@ patch(Activity.prototype, "activity_geo_patch", {
 
                 const eventId = events[0].id;
 
-                // 2️⃣ Guardar GEO en el evento
+                // Guardar GEO en el evento
                 await rpc("/web/dataset/call_kw", {
                     model: "calendar.event",
                     method: "write",
@@ -56,7 +56,7 @@ patch(Activity.prototype, "activity_geo_patch", {
                     }],
                 });
 
-                // 3️⃣ Llamar al método ORIGINAL
+                //  Llamar al método ORIGINAL
                 return await this._super(ev);
             },
             () => {

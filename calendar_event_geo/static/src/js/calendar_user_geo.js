@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-console.log("🔥 calendar_user_geo LOADED");
+
 
 import { registry } from "@web/core/registry";
 import { rpc } from "@web/core/network/rpc";

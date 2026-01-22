@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_calendar_event_form_regeocode" model="ir.ui.view">
+        <field name="name">calendar.event.form.regeocode</field>
+        <field name="model">calendar.event</field>
+
+        <!-- 👉 Vista COMPLETA del evento -->
+        <field name="inherit_id" ref="calendar.view_calendar_event_form"/>
+
+        <field name="arch" type="xml">
+
+            <!-- Botón solo si ya hay dirección -->
+            <xpath expr="//field[@name='location']" position="after">
+                <button
+                    name="action_geocode_planned_location"
+                    type="object"
+                    string="Regeolocalizar ubicación"
+                    class="oe_highlight"
+                     invisible="not show_regeocode_button"
+                />
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

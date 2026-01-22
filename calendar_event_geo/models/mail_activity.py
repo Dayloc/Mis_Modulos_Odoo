@@ -6,22 +6,13 @@ from math import radians, sin, cos, sqrt, atan2
 class MailActivity(models.Model):
     _inherit = "mail.activity"
 
-    def action_done(self):
+    def _check_geo_validation(self):
         for activity in self:
-
-            # Solo reuniones
-            if activity.activity_type_id.name != "Reunión":
-                continue
-
-            # Evento asociado
-            event = self.env["calendar.event"].search([
-                ("activity_ids", "in", activity.id)
-            ], limit=1)
-
+            event = activity.calendar_event_id
             if not event:
                 continue
 
-            #  Si no hay GEO del comercial -> obtenerla
+            # SIN GEO → PEDIRLA
             if not event.done_latitude or not event.done_longitude:
                 return {
                     "type": "ir.actions.client",
@@ -29,13 +20,12 @@ class MailActivity(models.Model):
                     "context": {
                         "active_model": "calendar.event",
                         "active_id": event.id,
+                        "from_activity": True,
                     },
                 }
 
-
             if not event.planned_latitude or not event.planned_longitude:
                 continue
-
 
             distance_km = self._distance_km(
                 event.done_latitude,
@@ -51,7 +41,23 @@ class MailActivity(models.Model):
                     "Debes estar a menos de 500 m para poder cerrarla."
                 )
 
+        return False
+
+    def action_done(self):
+        geo_action = self._check_geo_validation()
+        if geo_action:
+            return geo_action
+
         return super().action_done()
+
+
+    def action_feedback(self, *args, **kwargs):
+        geo_action = self._check_geo_validation()
+        if geo_action:
+            return geo_action
+
+        return super().action_feedback(*args, **kwargs)
+
 
     def _distance_km(self, lat1, lon1, lat2, lon2):
         R = 6371.0

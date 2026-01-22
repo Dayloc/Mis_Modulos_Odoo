@@ -3,16 +3,11 @@
 import { registry } from "@web/core/registry";
 import { rpc } from "@web/core/network/rpc";
 
-/**
- * Client Action: calendar_event_geo
- * - Llama al backend para geo codificar la dirección
- * - Guarda lat/lon en calendar.event
- * - Recarga el formulario para mostrar los datos
- */
+
 registry.category("actions").add(
     "calendar_event_geo",
     async (env, action) => {
-        console.log("🚀 calendar_event_geo ejecutado");
+
 
         // Obtener ID del evento (forma correcta en Odoo 18)
         const eventId = action?.context?.active_id;

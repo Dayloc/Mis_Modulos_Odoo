@@ -9,19 +9,11 @@ class CalendarEvent(models.Model):
     _inherit = "calendar.event"
 
 
-    #  Ubicación planificada de la reunión
-
     planned_latitude = fields.Float(string="Latitud reunión")
     planned_longitude = fields.Float(string="Longitud reunión")
 
-
-    #  Ubicación real del comercial
-
     done_latitude = fields.Float(string="Latitud comercial")
     done_longitude = fields.Float(string="Longitud comercial")
-
-
-    # Distancia calculada
 
     distance_km = fields.Float(
         string="Distancia al punto (km)",
@@ -30,20 +22,18 @@ class CalendarEvent(models.Model):
     )
 
 
-    # Cálculo de distancia (Haversine)
-
     def _compute_distance_km(self):
         for event in self:
-            if any(v is None for v in (
+            if not all([
                 event.planned_latitude,
                 event.planned_longitude,
                 event.done_latitude,
                 event.done_longitude,
-            )):
-                event.distance_km = 0.0
+            ]):
+                event.distance_km = False
                 continue
 
-            R = 6371.0  # Radio de la Tierra (km)
+            R = 6371.0
 
             lat1 = radians(event.planned_latitude)
             lon1 = radians(event.planned_longitude)
@@ -59,13 +49,71 @@ class CalendarEvent(models.Model):
             event.distance_km = R * c
 
 
-    #  Geo localizar dirección de la reunión (botón)
+    def _check_meeting_close_constraints(self):
+        self.ensure_one()
+
+        # Reunión online → no validar
+        if self.location == "Reunión en línea":
+            return
+
+        # Sin ubicación planificada → no validar
+        if not self.planned_latitude or not self.planned_longitude:
+            return
+
+        # Sin geolocalización
+        if not self.done_latitude or not self.done_longitude:
+            raise UserError(
+                _("No puedes cerrar la reunión sin obtener tu geolocalización.")
+            )
+
+        # Sin distancia calculada
+        if not self.distance_km:
+            raise UserError(_("No se pudo calcular la distancia a la reunión."))
+
+        # Demasiado lejos
+        if self.distance_km > 1:
+            raise UserError(
+                _("No estás lo suficientemente cerca del punto.\n\n"
+                  "Distancia actual: %.2f km") % self.distance_km
+            )
+
+
+    def _post_done_location_message(self):
+        self.ensure_one()
+
+        lat = self.done_latitude
+        lng = self.done_longitude
+        map_url = f"https://www.google.com/maps?q={lat},{lng}"
+
+        html = Markup(f"""
+            <b>📍 Ubicación real del comercial</b><br/>
+            Latitud: <code>{lat}</code><br/>
+            Longitud: <code>{lng}</code><br/>
+            <a href="{map_url}" target="_blank">🗺 Ver en Google Maps</a>
+        """)
+
+        self.message_post(
+            body=html,
+            subtype_xmlid="mail.mt_note",
+        )
+
+
+    def write(self, vals):
+        closing = "active" in vals and vals.get("active") is False
+
+        if closing:
+            for event in self:
+                event._check_meeting_close_constraints()
+                event._post_done_location_message()
+
+        return super().write(vals)
+
 
     def action_geocode_planned_location(self):
         self.ensure_one()
 
         if not self.location:
-            raise UserError("La reunión no tiene una dirección definida.")
+            raise UserError(_("La reunión no tiene una dirección definida."))
 
         response = requests.get(
             "https://nominatim.openstreetmap.org/search",
@@ -74,20 +122,15 @@ class CalendarEvent(models.Model):
                 "format": "jsonv2",
                 "limit": 1,
             },
-            headers={
-                "User-Agent": "calendar_event_geo/1.0"
-            },
+            headers={"User-Agent": "calendar_event_geo/1.0"},
             timeout=10,
         )
         response.raise_for_status()
 
         data = response.json()
         if not data:
-            raise UserError(
-                "No se pudieron obtener coordenadas para la dirección indicada."
-            )
+            raise UserError(_("No se pudieron obtener coordenadas."))
 
-        # Guardar coordenadas
         self.planned_latitude = float(data[0]["lat"])
         self.planned_longitude = float(data[0]["lon"])
 
@@ -95,95 +138,11 @@ class CalendarEvent(models.Model):
         lng = self.planned_longitude
         map_url = f"https://www.google.com/maps?q={lat},{lng}"
 
-        html = Markup(
-            "<b>📍 Ubicación planificada de la reunión</b><br/>"
-            "Latitud: <code>%s</code><br/>"
-            "Longitud: <code>%s</code><br/>"
-            "<a href='%s' target='_blank'>🗺 Ver en Google Maps</a>"
-        ) % (lat, lng, map_url)
+        html = Markup(f"""
+            <b>📍 Ubicación planificada de la reunión</b><br/>
+            Latitud: <code>{lat}</code><br/>
+            Longitud: <code>{lng}</code><br/>
+            <a href="{map_url}" target="_blank">🗺 Ver en Google Maps</a>
+        """)
 
-        self.message_post(
-            body=html,
-            subtype_xmlid="mail.mt_note",
-        )
-
-
-    #  Geo localizar desde modal de actividad
-
-    def action_activity_geolocate(self):
-        self.ensure_one()
-
-        if self.planned_latitude is None or self.planned_longitude is None:
-            raise UserError(
-                "Primero debes geolocalizar la dirección de la reunión."
-            )
-
-        lat = self.planned_latitude
-        lng = self.planned_longitude
-        map_url = f"https://www.google.com/maps?q={lat},{lng}"
-
-        html = Markup(
-            "<b>📍 Geolocalización desde actividad</b><br/>"
-            "Latitud: <code>%s</code><br/>"
-            "Longitud: <code>%s</code><br/>"
-            "<a href='%s' target='_blank'>🗺 Ver en Google Maps</a>"
-        ) % (lat, lng, map_url)
-
-        self.message_post(
-            body=html,
-            subtype_xmlid="mail.mt_note",
-        )
-
-
-    # Bloquear cierre + publicar geo del comercial
-
-    def write(self, vals):
-        closing = "active" in vals and vals.get("active") is False
-
-        res = super().write(vals)
-
-        if closing:
-            for event in self:
-
-                # Reunión online → no validar
-                if event.location == "Reunión en línea":
-                    continue
-
-                # Sin ubicación planificada → no validar
-                if event.planned_latitude is None or event.planned_longitude is None:
-                    continue
-
-                #  Sin geolocalización del comercial
-                if event.done_latitude is None or event.done_longitude is None:
-                    raise UserError(
-                        "No puedes cerrar la reunión si no has obtenido "
-                        "tu geolocalización."
-                    )
-
-                #  Demasiado lejos
-                if event.distance_km > 1:
-                    raise UserError(
-                        "No estás lo suficientemente cerca del punto "
-                        "de la reunión.\n\n"
-                        f"Distancia actual: {event.distance_km:.2f} km"
-                    )
-
-                lat = event.done_latitude
-                lng = event.done_longitude
-                map_url = f"https://www.google.com/maps?q={lat},{lng}"
-
-                html = Markup(
-                    f"""
-                    <b>📍 Ubicación planificada de la reunión</b><br/>
-                    Latitud: <code>{lat}</code><br/>
-                    Longitud: <code>{lng}</code><br/>
-                    <a href="{map_url}" target="_blank">🗺 Ver en Google Maps</a>
-                    """
-                )% (lat, lng, event.distance_km, map_url)
-
-                event.message_post(
-                    body=html,
-                    subtype_xmlid="mail.mt_note",
-                )
-
-        return res
+        self.message_post(body=html, subtype_xmlid="mail.mt_note")
