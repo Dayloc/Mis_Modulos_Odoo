@@ -1,22 +1,10 @@
 /** @odoo-module **/
 
-
-
 import { registry } from "@web/core/registry";
 import { rpc } from "@web/core/network/rpc";
 
 registry.category("actions").add("calendar_user_geo", async (env, action) => {
-    const ctx = action.context || {};
-    const model = ctx.active_model;
-    const id = ctx.active_id;
-
-    if (!model || !id) {
-        env.services.notification.add(
-            "No se pudo determinar el registro activo.",
-            { type: "danger" }
-        );
-        return;
-    }
+    const { active_model, active_id } = action.context || {};
 
     if (!navigator.geolocation) {
         env.services.notification.add(
@@ -29,13 +17,13 @@ registry.category("actions").add("calendar_user_geo", async (env, action) => {
     navigator.geolocation.getCurrentPosition(
         async (pos) => {
             await rpc("/web/dataset/call_kw", {
-                model: model,
+                model: active_model,
                 method: "write",
-                args: [[id], {
+                args: [[active_id], {
                     done_latitude: pos.coords.latitude,
                     done_longitude: pos.coords.longitude,
                 }],
-                 kwargs: {},
+                kwargs: {}
             });
 
             env.services.notification.add(

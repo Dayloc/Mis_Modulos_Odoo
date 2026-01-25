@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_home_attendance" name="Portal My Home: Attendances" inherit_id="portal.portal_my_home">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="employee" t-value="request.env.user.employee_id" t-if="request.env.user.employee_id"/>
+            <div t-if="request.httprequest.args.get('error')" class="alert alert-danger mt-4" role="alert">
+                <t t-esc="request.httprequest.args.get('error')"/>
+            </div>
+            <div t-if="request.httprequest.args.get('success')" class="alert alert-success mt-4" role="alert">
+                <t t-esc="request.httprequest.args.get('success')"/>
+            </div>
+
+            <div t-if="employee" id="attendance_portal_widget_home" class="mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Registrar Jornada</h4>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 id="attendance_message" class="mb-3">
+                            Hola
+                            <br></br>
+                            <t t-esc="employee.name"/>, tu estado actual es:
+                            <span id="attendance_status_badge"
+                                  t-att-class="'badge ' + ('bg-success' if employee.attendance_state == 'checked_in' else 'bg-danger')">
+                                <t t-esc="'DENTRO' if employee.attendance_state == 'checked_in' else 'FUERA'"/>
+                            </span>
+                        </h5>
+
+                        <p id="attendance_time_info" class="text-muted small"></p>
+
+                        <div class="mb-3">
+                            <button class="btn btn-success btn-lg mx-2 btn-clock-in"
+                                    t-att-disabled="employee.attendance_state == 'checked_in' or None">
+                                <i class="fa fa-sign-in me-2"/>Registrar ENTRADA
+                            </button>
+                            <button class="btn btn-danger btn-lg mx-2 btn-clock-out"
+                                    t-att-disabled="employee.attendance_state == 'checked_out' or None">
+                                <i class="fa fa-sign-out me-2"/>Registrar SALIDA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <a class="list-group-item list-group-item-action" href="/my/attendances">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"><i class="fa fa-clock-o me-2"/>Mi Registro
+                    </h5>
+                    <small>
+                        <t t-esc="attendance_count"/>
+                        Registros
+                    </small>
+                </div>
+                <p class="mb-1">
+                    Registra tu jornada laboral y consulta tus horas.
+                </p>
+            </a>
+        </xpath>
+    </template>
+
+    <template id="custom_side_content_logout" inherit_id="portal.side_content" name="Custom Side Content Logout">
+        <xpath expr="//div[hasclass('o_portal_my_details')]" position="after">
+            <a href="/web/session/logout" class="btn btn-secondary mt-3">
+                <i class="fa fa-sign-out-alt me-1"/>Cerrar Sesión
+            </a>
+        </xpath>
+    </template>
+
+
+</odoo>

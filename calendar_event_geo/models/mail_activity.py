@@ -12,7 +12,7 @@ class MailActivity(models.Model):
             if not event:
                 continue
 
-            # SIN GEO → PEDIRLA
+            # 🔴 Sin geo del comercial → pedirla
             if not event.done_latitude or not event.done_longitude:
                 return {
                     "type": "ir.actions.client",
@@ -20,13 +20,14 @@ class MailActivity(models.Model):
                     "context": {
                         "active_model": "calendar.event",
                         "active_id": event.id,
-                        "from_activity": True,
                     },
                 }
 
+            # 🟡 Sin ubicación planificada → no validar distancia
             if not event.planned_latitude or not event.planned_longitude:
                 continue
 
+            # 📏 Calcular distancia
             distance_km = self._distance_km(
                 event.done_latitude,
                 event.done_longitude,
@@ -50,14 +51,37 @@ class MailActivity(models.Model):
 
         return super().action_done()
 
-
     def action_feedback(self, *args, **kwargs):
-        geo_action = self._check_geo_validation()
-        if geo_action:
-            return geo_action
+        for activity in self:
+            event = activity.calendar_event_id
+            if not event:
+                continue
+
+            # si no hay geo → bloquear
+            """if not event.done_latitude or not event.done_longitude:
+                raise UserError(
+                    "Debes permitir la geolocalización para cerrar la actividad."
+                )"""
+
+            # validar distancia
+            if event.planned_latitude and event.planned_longitude:
+                distance_km = self._distance_km(
+                    event.done_latitude,
+                    event.done_longitude,
+                    event.planned_latitude,
+                    event.planned_longitude,
+                )
+
+                max_distance_km = 0.5  # 500 metros
+
+                if distance_km > max_distance_km:
+                    raise UserError(
+                        "No estás lo suficientemente cerca del punto de la reunión.\n\n"
+                        f"📏 Distancia actual: {distance_km * 1000:.0f} metros\n"
+                        "📍 Debes estar a menos de 500 metros para poder cerrarla."
+                    )
 
         return super().action_feedback(*args, **kwargs)
-
 
     def _distance_km(self, lat1, lon1, lat2, lon2):
         R = 6371.0
