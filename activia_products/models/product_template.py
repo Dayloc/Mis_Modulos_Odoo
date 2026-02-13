@@ -8,3 +8,6 @@ class ProductTemplate(models.Model):
         ('peligroso', 'Peligroso'),
         ('exclusivo', 'Exclusivo'),
     ], string="Tipo de Producto", default='normal')
+
+
+#añadiendo un cambio para git
